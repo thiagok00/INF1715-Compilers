@@ -1,0 +1,20 @@
+var1: int;
+var2: float;
+var3: char;
+
+a:float; b:char; c: int;
+g: int;
+d:int; e: float;
+
+
+funcao1(x: int): void {
+    
+}
+
+funcao2(x: int, y:float): int {
+    
+}
+
+funcao3(): char {
+    
+}

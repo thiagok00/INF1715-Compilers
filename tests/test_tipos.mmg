@@ -1,0 +1,14 @@
+x: int;
+y: float;
+z: char;
+
+vx: int[];
+vvx: int[][];
+
+vy: float[];
+vvy: float[][];
+
+vz: char[];
+vvz: char[][];
+
+vvvvz: char[][][][][];

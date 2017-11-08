@@ -1,0 +1,32 @@
+funcao(): void {
+    if 1 {
+
+    }
+
+    if x == 23 {
+
+    }
+    else {
+
+    }
+
+    if 1 && 1 || x || f(x) * 2 {
+
+    }
+
+    if f(x,y,z) {
+
+    }
+    else {
+
+    }
+
+    if x {
+
+    }
+    else {
+        if 1 {
+
+        }
+    }
+}
