@@ -20,27 +20,26 @@ typedef struct Constante
 /*
 * Tipo
 */
-typedef enum Tipo_TAG { pInt, pFloat, pChar, array} Tipo_TAG;
 
-typedef union Tipo
+typedef enum Tipo_TAG { base, array} Tipo_TAG;
+typedef enum Base_TAG {bInt, bFloat, bChar, bVoid} Base_TAG;
+typedef struct Tipo
 {
 	Tipo_TAG tag;
-  struct {
-    Tipo_TAG tag;
-    union Tipo *tipo;
-  } array;
+	Base_TAG tipo_base;
+	struct Tipo* de;
 } Tipo;
 
 /*
 * Definicao Variavel
 */
-//typedef enum EscopoTag { EscopoGlobal,EscopoLocal } EscopoTag;
+typedef enum EscopoTag { EscopoGlobal,EscopoLocal } EscopoTag;
 
 typedef struct DefVar
 {
+	char* id;
   Tipo* tipo;
-  char* id;
-	//EscopoVar escopoTag;
+	EscopoTag escopo;
 } DefVar;
 
 typedef struct DefVarL
@@ -63,7 +62,7 @@ typedef struct Bloco {
 typedef struct ParametroL
 {
 	Tipo *t;
-	char *id; //TODO: faz sentido guardar o nome do param?
+	char *id;
 	struct ParametroL *prox;
 } ParametroL;
 
@@ -78,18 +77,18 @@ typedef struct DefFunc
 /*
 * Definicoes
 */
-typedef union definicao {
-    DefVar *defVar;
-    DefFunc *defFunc;
+typedef enum Def_TAG { DFunc, DVar} Def_TAG;
+typedef struct definicao {
+		Def_TAG tag;
+	 	union {
+			DefVar *v;
+			DefFunc *f;
+		}u;
+    struct definicao *prox;
 }Definicao;
 
-typedef struct definicaoL {
-    Definicao *def;
-    struct definicaoL *prox;
-}DefinicaoL;
-
 typedef struct programa {
-	DefinicaoL* defs;
+	Definicao* defs;
 } Programa;
 
 /*

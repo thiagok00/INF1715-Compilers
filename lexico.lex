@@ -1,7 +1,10 @@
 %{
 #include <stdio.h>
 #include "grammar.tab.h"
-#include "tree.h"
+#if !defined(tree_h)
+  #include "tree.h"
+  #define tree_h
+#endif
 
 /* malloc string */
 static char* createstring(int length);
@@ -38,19 +41,19 @@ int yy_lines = 1;
 ">="                                    { return TK_GREATEREQUAL; }
 "&&"                                    { return TK_AND; }
 "||"                                    { return TK_OR; }
-[a-zA-Z_][a-zA-Z0-9_]*                  { yylval.s = copystring(yytext); return TK_ID; }
-\"(\\.|[^\\"])*\"                       { yylval.s = copyescapes(yytext); return TK_STRING; }
+[a-zA-Z_][a-zA-Z0-9_]*                  { yylval.str_val = copystring(yytext); return TK_ID; }
+\"(\\.|[^\\"])*\"                       { yylval.str_val = copyescapes(yytext); return TK_STRING; }
 
-([1-9][0-9]*)|0                         { yylval.i = atoi(yytext); return TK_DEC; }
-0[xX][0-9a-fA-F]+|o[0-7]*               { yylval.i = strtol(yytext,NULL,0); return TK_DEC; }
+([1-9][0-9]*)|0                         { yylval.int_val = atoi(yytext); return TK_DEC; }
+0[xX][0-9a-fA-F]+|o[0-7]*               { yylval.int_val = strtol(yytext,NULL,0); return TK_DEC; }
 
-[0-9]+[Ee][+-]?[0-9]+(f|F)?		          { yylval.f = strtof(yytext,NULL); return TK_REAL;}
-[0-9]*"."[0-9]+([Ee][+-]?[0-9]+)?(f|F)?	{ yylval.f = strtof(yytext,NULL); return TK_REAL;}
-[0-9]+"."[0-9]*([Ee][+-]?[0-9]+)?(f|F)? { yylval.f = strtof(yytext,NULL); return TK_REAL;}
+[0-9]+[Ee][+-]?[0-9]+(f|F)?		          { yylval.float_val = strtof(yytext,NULL); return TK_REAL;}
+[0-9]*"."[0-9]+([Ee][+-]?[0-9]+)?(f|F)?	{ yylval.float_val = strtof(yytext,NULL); return TK_REAL;}
+[0-9]+"."[0-9]*([Ee][+-]?[0-9]+)?(f|F)? { yylval.float_val = strtof(yytext,NULL); return TK_REAL;}
 
-0[xX][0-9a-fA-F]+[Pp][+-]?[0-9]+(f|F)?		                 { yylval.f = strtof(yytext,NULL); return TK_REAL;}
-0[xX][0-9a-fA-F]*"."[0-9a-fA-F]+([Pp][+-]?[0-9]+)?(f|F)?	 { yylval.f = strtof(yytext,NULL); return TK_REAL;}
-0[xX][0-9a-fA-F]+"."[0-9a-fA-F]*([Pp][+-]?[0-9]+)?(f|F)?   { yylval.f = strtof(yytext,NULL); return TK_REAL;}
+0[xX][0-9a-fA-F]+[Pp][+-]?[0-9]+(f|F)?		                 { yylval.float_val = strtof(yytext,NULL); return TK_REAL;}
+0[xX][0-9a-fA-F]*"."[0-9a-fA-F]+([Pp][+-]?[0-9]+)?(f|F)?	 { yylval.float_val = strtof(yytext,NULL); return TK_REAL;}
+0[xX][0-9a-fA-F]+"."[0-9a-fA-F]*([Pp][+-]?[0-9]+)?(f|F)?   { yylval.float_val = strtof(yytext,NULL); return TK_REAL;}
 
 .                                       { return yytext[0]; }
 

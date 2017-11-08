@@ -1,26 +1,37 @@
-%{
-#include <stdio.h>
-#include <string.h>
-#include "tree.h"
+%code requires {
+  #include <stdio.h>
+  #include <string.h>
+  #if !defined(tree_h)
+  #include "tree.h"
+  #define tree_h
+  #endif
+}
 
-int   yylex(void);
-void  yyerror(const char *str);
-int   yywrap(void);
+%code {
+  int   yylex(void);
+  void  yyerror(const char *str);
+  int   yywrap(void);
+
+  Programa* nodePrograma = NULL;
+}
+
+%{
 
 %}
 
 %union{
-  int i;
-  char *s;
-  float f;
-/*
+  int int_val;
+  char *str_val;
+  float float_val;
   Programa *prog;
   Definicao* def;
   DefVar* defVar;
   DefFunc* defFunc;
+  Tipo* t;
+/*
   ParametroL* params;
   Exp* exp;
-  Tipo* type;
+
   CMDL* cmd;
   Bloco* bloco;
   DefVarL* defvars;
@@ -41,7 +52,7 @@ int   yywrap(void);
 %token	TK_RETURN
 %token	TK_DEC
 %token	TK_REAL
-%token	TK_ID
+%token	<str_val> TK_ID
 %token	TK_EQUAL
 %token  TK_NOTEQUAL
 %token	TK_LESSEQUAL
@@ -50,35 +61,64 @@ int   yywrap(void);
 %token	TK_OR
 %token	TK_STRING
 
-
+%type<prog> programa
+%type<def>  lista_definicoes definicao
+%type<defVar> def_variavel
+%type<defFunc> def_funcao
+%type<t> tipo
+%type<int_val> tipo_primitivo
+%type<str_val> ID
 
 %%
 
-programa:               lista_definicoes
+programa:               lista_definicoes {  $$ = (Programa*)malloc(sizeof(Programa));
+                                            $$->defs = $1;
+                                            nodePrograma = $$;}
                     ;
 
-lista_definicoes:       definicao
-                    |   definicao lista_definicoes
+lista_definicoes:       definicao {$$ = $1;}
+                    |   definicao lista_definicoes {$$ = $1; $$->prox = $2;}
                     ;
 
-definicao:              def_variavel
-                    |   def_funcao
+definicao:              def_variavel {  $$ = (Definicao*)malloc(sizeof(Definicao));
+                                        $$->u.v = $1;
+                                        $$->tag = DVar;
+                                        $$->prox = NULL;
+                                     }
+                    |   def_funcao {    $$ = (Definicao*)malloc(sizeof(Definicao));
+                                        $$->u.f = $1;
+                                        $$->tag = DFunc;
+                                        $$->prox = NULL;}
                     ;
 
-def_variavel:           TK_ID ':' tipo ';'
+def_variavel:           ID ':' tipo ';' {  $$ = (DefVar*)malloc(sizeof(DefVar));
+                                              $$->id = $1;
+                                              printf("%s",$1);
+                                              $$->tipo = $3;
+                                              $$->escopo = EscopoGlobal;
+                                              }
                     ;
 
-tipo:                   tipo_primitivo
-                    |   tipo '[' ']'
+tipo:                   tipo_primitivo {  $$ = (Tipo*)malloc(sizeof(Tipo));
+                                          $$->tag = base;
+                                          //printf("base %d\n",$1);
+                                          $$->tipo_base = $1;
+                                          $$->de = NULL;
+                                          }
+
+                    |   tipo '[' ']'  {   $$ = (Tipo*)malloc(sizeof(Tipo));
+                                          $$->tag = array;
+                                          $$->de = $1;
+                                      }
                     ;
 
-tipo_primitivo:         TK_INT
-                    |   TK_FLOAT
-                    |   TK_CHAR
-                    |   TK_VOID
+tipo_primitivo:         TK_INT    {$$ = bInt;}
+                    |   TK_FLOAT  {$$ = bFloat;}
+                    |   TK_CHAR   {$$ = bChar;}
+                    |   TK_VOID   {$$ = bVoid;}
                     ;
 
-def_funcao:             TK_ID '(' parametros ')' ':' tipo bloco
+def_funcao:             ID '(' parametros ')' ':' tipo bloco {$$ = (DefFunc*)malloc(sizeof(DefFunc));}
                     ;
 
 parametros:             /* vazio */
@@ -89,7 +129,7 @@ lista_params:           parametro
                     |   parametro ',' lista_params
                     ;
 
-parametro:              TK_ID ':' tipo
+parametro:              ID ':' tipo
                     ;
 
 bloco:                  '{' lista_def_var lista_comandos '}'
@@ -114,11 +154,11 @@ comando:                bloco
                     |   chamada ';'
                     ;
 
-variavel:               TK_ID
+variavel:               ID
                     |   expressao_base '[' expressao ']'
                     ;
 
-chamada:                TK_ID '(' lista_exp ')'
+chamada:                ID '(' lista_exp ')'
                     ;
 
 lista_exp:              /* vazio*/
@@ -176,6 +216,11 @@ expressao_base:         TK_DEC
                     |   '(' expressao ')'
                     |   chamada
                     |   TK_NEW tipo '[' expressao ']'
+                    ;
+
+ID: TK_ID           { $$ = yylval.str_val;
+                      printf("id:%s\n",$$);
+                    }
                     ;
 
 %%
