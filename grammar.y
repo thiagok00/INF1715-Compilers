@@ -28,16 +28,16 @@
   DefVar* defVar;
   DefFunc* defFunc;
   Tipo* t;
-/*
-  ParametroL* params;
-  Exp* exp;
-
-  CMDL* cmd;
+  ParametroL* paramsL;
   Bloco* bloco;
   DefVarL* defvars;
-  ExpL* expl;
+  CMD *cmd;
+  CMDL *cmdL;
+  Exp* exp;
   Constante* cons;
-  */
+  Var *var;
+  ExpL* expl;
+
 }
 
 %token	TK_INT
@@ -68,6 +68,15 @@
 %type<t> tipo
 %type<int_val> tipo_primitivo
 %type<str_val> ID
+%type<paramsL> parametros lista_params parametro
+%type<bloco> bloco
+%type<defvars> lista_def_var lista_def_var2
+%type<cmdL> lista_comandos
+%type<cmd> comando
+%type<exp> expressao exp_or exp_and exp_cmp exp_add exp_mult exp_unaria exp_as expressao_base exp_variavel chamada
+%type<cons> constante
+%type<expl> lista_exp lista_exp2
+
 
 %%
 
@@ -81,6 +90,7 @@ lista_definicoes:       definicao {$$ = $1;}
                     ;
 
 definicao:              def_variavel {  $$ = (Definicao*)malloc(sizeof(Definicao));
+                                        $1->escopo = EscopoGlobal;
                                         $$->u.v = $1;
                                         $$->tag = DVar;
                                         $$->prox = NULL;
@@ -93,19 +103,15 @@ definicao:              def_variavel {  $$ = (Definicao*)malloc(sizeof(Definicao
 
 def_variavel:           ID ':' tipo ';' {  $$ = (DefVar*)malloc(sizeof(DefVar));
                                               $$->id = $1;
-                                              printf("%s",$1);
                                               $$->tipo = $3;
-                                              $$->escopo = EscopoGlobal;
                                               }
                     ;
 
 tipo:                   tipo_primitivo {  $$ = (Tipo*)malloc(sizeof(Tipo));
                                           $$->tag = base;
-                                          //printf("base %d\n",$1);
                                           $$->tipo_base = $1;
                                           $$->de = NULL;
                                           }
-
                     |   tipo '[' ']'  {   $$ = (Tipo*)malloc(sizeof(Tipo));
                                           $$->tag = array;
                                           $$->de = $1;
@@ -118,109 +124,269 @@ tipo_primitivo:         TK_INT    {$$ = bInt;}
                     |   TK_VOID   {$$ = bVoid;}
                     ;
 
-def_funcao:             ID '(' parametros ')' ':' tipo bloco {$$ = (DefFunc*)malloc(sizeof(DefFunc));}
+def_funcao:             ID '(' parametros ')' ':' tipo bloco {$$ = (DefFunc*)malloc(sizeof(DefFunc));
+                                                              $$->tiporet = $6;
+                                                              $$->id = $1;
+                                                              $$->params = $3;
+                                                              //$$->bloco = $7;
+                                                             }
                     ;
 
-parametros:             /* vazio */
-                    |   lista_params
+parametros:             /* vazio */ {$$ = NULL;}
+                    |   lista_params {$$ = $1;}
                     ;
 
-lista_params:           parametro
-                    |   parametro ',' lista_params
+lista_params:           parametro {$$ = $1;}
+                    |   parametro ',' lista_params {$$ = $1;
+                                                    $$->prox = $3;
+                                                    }
                     ;
 
-parametro:              ID ':' tipo
+parametro:              ID ':' tipo { $$ = (ParametroL*)malloc(sizeof(ParametroL));
+                                      $$->id = $1;
+                                      $$->tipo = $3;
+                                      $$->prox = NULL;
+    }
                     ;
 
-bloco:                  '{' lista_def_var lista_comandos '}'
+bloco:                  '{' lista_def_var lista_comandos '}'  {$$ = (Bloco*)malloc(sizeof(Bloco));
+                                                               if($2 != NULL) $$->declVars = $2->prim;
+                                                               else $$->declVars = $2;
+                                                               print_bloco($$);
+
+
+                                                              }
                     ;
 
-lista_def_var:          /*vazio*/
-                    |   lista_def_var def_variavel
+lista_def_var:          /*vazio*/ {$$ = NULL;}
+                    |   lista_def_var lista_def_var2 {
+
+                                                        if ($1 != NULL) {
+                                                          $1->prox = $2;
+                                                          $$ = $2 ;
+                                                          $2->prim = $1->prim;
+                                                        }
+                                                        else{$$ = $2;$$->prim = $$;}
+                                                    }
+                    ;
+lista_def_var2: def_variavel {
+                                $$ = (DefVarL*)malloc(sizeof(DefVarL));
+                                $1->escopo = EscopoLocal;
+                                $$->v = $1;
+                                $$->prox = NULL;
+                                $$->prim = NULL;
+}
+                ;
+lista_comandos:         /*vazio*/ {$$ = NULL;}
+                    |   comando lista_comandos {$$ = (CMDL*)malloc(sizeof(CMDL));
+                                                $$->c = $1;
+                                                $$->prox = $2;
+                                               }
                     ;
 
-lista_comandos:         /*vazio*/
-                    |   comando lista_comandos
+comando:                bloco { $$ = (CMD*)malloc(sizeof(CMD));
+                                $$->tag = CMD_BLOCK;
+                                $$->u.bloco = $1;
+                              }
+                    |   '@' expressao ';'{ $$ = (CMD*)malloc(sizeof(CMD));
+                                           $$->tag = CMD_PRINT;
+                                           $$->u.exp = $2;
+                                        }
+                    |   TK_RETURN expressao ';' { $$ = (CMD*)malloc(sizeof(CMD));
+                                                  $$->tag = CMD_RETURN;
+                                                  $$->u.exp = $2;
+                                                }
+                    |   TK_RETURN ';' { $$ = (CMD*)malloc(sizeof(CMD));
+                                        $$->tag = CMD_RETURNVOID;
+                                      }
+                    |   exp_variavel '=' expressao ';' { $$ = (CMD*)malloc(sizeof(CMD));
+                                                     $$->tag = CMD_ATR;
+                                                     $$->u.atr.expvar = $1;
+                                                     $$->u.atr.exp = $3;
+                                                   }
+                    |   TK_IF  expressao  bloco { $$ = (CMD*)malloc(sizeof(CMD));
+                                                  $$->tag = CMD_IF;
+                                                  $$->u.cmdif.exp = $2;
+                                                  $$->u.cmdif.bloco = $3;
+                                                }
+                    |   TK_IF  expressao  bloco  TK_ELSE  bloco { $$ = (CMD*)malloc(sizeof(CMD));
+                                                                  $$->tag = CMD_IFELSE;
+                                                                  $$->u.cmdifelse.exp = $2;
+                                                                  $$->u.cmdifelse.blocoif = $3;
+                                                                  $$->u.cmdifelse.blocoelse = $5;
+                                                                }
+                    |   TK_WHILE    expressao    bloco { $$ = (CMD*)malloc(sizeof(CMD));
+                                                         $$->tag = CMD_WHILE;
+                                                         $$->u.cmdwhile.exp = $2;
+                                                         $$->u.cmdwhile.bloco = $3;
+                                                       }
+                    |   chamada ';' { $$ = (CMD*)malloc(sizeof(CMD));
+                                      $$->tag = CMD_CHAMADA;
+                                      $$->u.exp = $1;
+                                    }
                     ;
 
-comando:                bloco
-                    |   '@' expressao ';'
-                    |   TK_RETURN expressao ';'
-                    |   TK_RETURN ';'
-                    |   variavel '=' expressao ';'
-                    |   TK_IF  expressao  bloco
-                    |   TK_IF  expressao  bloco  TK_ELSE  bloco
-                    |   TK_WHILE    expressao    bloco
-                    |   chamada ';'
-                    ;
-
-variavel:               ID
-                    |   expressao_base '[' expressao ']'
-                    ;
-
-chamada:                ID '(' lista_exp ')'
-                    ;
-
-lista_exp:              /* vazio*/
-                    |   lista_exp2
-                    ;
-
-lista_exp2:             expressao
-                    |   expressao ',' lista_exp2
-                    ;
-
-expressao:              exp_or
-                    ;
-
-exp_or:                 exp_and
-                    |   exp_or TK_OR exp_and
-                    ;
-
-exp_and:                exp_cmp
-                    |   exp_and TK_AND exp_cmp
-                    ;
-
-exp_cmp:                exp_add
-                    |   exp_cmp TK_EQUAL exp_add
-                    |   exp_cmp TK_NOTEQUAL exp_add
-                    |   exp_cmp TK_LESSEQUAL exp_add
-                    |   exp_cmp TK_GREATEREQUAL exp_add
-                    |   exp_cmp'<' exp_add
-                    |   exp_cmp '>' exp_add
-                    ;
-
-exp_add:                exp_mult
-                    |   exp_add '+' exp_mult
-                    |   exp_add '-' exp_mult
-                    ;
-
-exp_mult:               exp_unaria
-                    |   exp_mult '*' exp_unaria
-                    |   exp_mult '/' exp_unaria
-                    ;
-
-exp_unaria:             exp_as
-                    |   '-'   exp_unaria
-                    |   '!'   exp_unaria
-                    ;
-
-
-exp_as:                 expressao_base
-                    |   expressao_base TK_AS tipo
-                    ;
-
-expressao_base:         TK_DEC
-                    |   TK_REAL
-                    |   TK_STRING
-                    |   variavel
-                    |   '(' expressao ')'
-                    |   chamada
-                    |   TK_NEW tipo '[' expressao ']'
-                    ;
-
-ID: TK_ID           { $$ = yylval.str_val;
-                      printf("id:%s\n",$$);
+exp_variavel:               ID { $$ = (Exp*)malloc(sizeof(Exp));
+                                 $$->tag = EXP_VAR;
+                                 $$->u.expvar = (Var*)malloc(sizeof(Var));
+                                 $$->u.expvar->id = $1;
+                           }
+                    |   expressao_base '[' expressao ']' {  $$ = (Exp*)malloc(sizeof(Exp));
+                                                            $$->tag = EXP_ACESSO;
+                                                            $$->u.expacesso.expvar = $1;
+                                                            $$->u.expacesso.expindex = $3;
                     }
+                    ;
+
+chamada:                ID '(' lista_exp ')' {  $$ = (Exp*)malloc(sizeof(Exp));
+                                                $$->tag = EXP_CHAMADA;
+                                                $$->u.expchamada.idFunc = $1;
+                                                $$->u.expchamada.params = $3;
+                                             }
+                    ;
+
+lista_exp:              /* vazio*/ {$$ = NULL;}
+                    |   lista_exp2 { $$ = $1;}
+                    ;
+
+lista_exp2:             expressao { $$ = (ExpL*)malloc(sizeof(ExpL));
+                                    $$->e = $1;
+                                    $$->prox = NULL;
+                                  }
+                    |   expressao ',' lista_exp2 {$$ = (ExpL*)malloc(sizeof(ExpL));
+                                                        $$->e = $1;
+                                                        $$->prox = $3;}
+                    ;
+
+expressao:              exp_or {$$ = $1;}
+                    ;
+
+exp_or:                 exp_and {$$ = $1;}
+                    |   exp_or TK_OR exp_and  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                $$->tag = EXP_OR;
+                                                $$->u.expbin.expesq = $1;
+                                                $$->u.expbin.expdir = $3;
+                                              }
+                    ;
+
+exp_and:                exp_cmp {$$ = $1;}
+                    |   exp_and TK_AND exp_cmp  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                $$->tag = EXP_AND;
+                                                $$->u.expbin.expesq = $1;
+                                                $$->u.expbin.expdir = $3;
+                                              }
+                    ;
+
+exp_cmp:                exp_add {$$ = $1;}
+                    |   exp_cmp TK_EQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_CMP;
+                                                    $$->u.expcmp.expesq = $1;
+                                                    $$->u.expcmp.expdir = $3;
+                                                    }
+                    |   exp_cmp TK_NOTEQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_CMP;
+                                                    $$->u.expcmp.expesq = $1;
+                                                    $$->u.expcmp.expdir = $3;
+                                                    }
+                    |   exp_cmp TK_LESSEQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_CMP;
+                                                    $$->u.expcmp.expesq = $1;
+                                                    $$->u.expcmp.expdir = $3;
+                                                    }
+                    |   exp_cmp TK_GREATEREQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_CMP;
+                                                    $$->u.expcmp.expesq = $1;
+                                                    $$->u.expcmp.expdir = $3;
+                                                    }
+                    |   exp_cmp'<' exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_CMP;
+                                                    $$->u.expcmp.expesq = $1;
+                                                    $$->u.expcmp.expdir = $3;
+                                                    }
+                    |   exp_cmp '>' exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_CMP;
+                                                    $$->u.expcmp.expesq = $1;
+                                                    $$->u.expcmp.expdir = $3;
+                                                    }
+                    ;
+
+exp_add:                exp_mult {$$ = $1;}
+                    |   exp_add '+' exp_mult { $$ = (Exp*)malloc(sizeof(Exp));
+                                                $$->tag = EXP_ADD;
+                                                $$->u.expbin.expesq = $1;
+                                                $$->u.expbin.expdir = $3;
+                                              }
+                    |   exp_add '-' exp_mult { $$ = (Exp*)malloc(sizeof(Exp));
+                                                $$->tag = EXP_SUB;
+                                                $$->u.expbin.expesq = $1;
+                                                $$->u.expbin.expdir = $3;
+                                              }
+                    ;
+
+exp_mult:               exp_unaria {$$ = $1;}
+                    |   exp_mult '*' exp_unaria { $$ = (Exp*)malloc(sizeof(Exp));
+                                                  $$->tag = EXP_MULT;
+                                                  $$->u.expbin.expesq = $1;
+                                                  $$->u.expbin.expdir = $3;
+                                                }
+                    |   exp_mult '/' exp_unaria { $$ = (Exp*)malloc(sizeof(Exp));
+                                                  $$->tag = EXP_DIV;
+                                                  $$->u.expbin.expesq = $1;
+                                                  $$->u.expbin.expdir = $3;
+                                                }
+                    ;
+
+exp_unaria:             exp_as {$$ = $1;}
+                    |   '-'   exp_unaria  { $$ = (Exp*)malloc(sizeof(Exp));
+                                            $$->tag = EXP_UNARIA;
+                                            $$->u.expunaria.exp = $2;
+                                          }
+                    |   '!'   exp_unaria  { $$ = (Exp*)malloc(sizeof(Exp));
+                                            $$->tag = EXP_UNARIA;
+                                            $$->u.expunaria.exp = $2;
+                                          }
+                    ;
+
+
+exp_as:                 expressao_base {$$ = $1;}
+                    |   expressao_base TK_AS tipo { $$ = (Exp*)malloc(sizeof(Exp));
+                                                    $$->tag = EXP_AS;
+                                                    $$->u.expnewas.exp = $1;
+                                                    $$->u.expnewas.tipo = $3;
+                                                  }
+                    ;
+
+expressao_base:         constante { $$ = (Exp*)malloc(sizeof(Exp));
+                                    $$->tag = EXP_CTE;
+                                    $$->u.expcte = $1;
+                                  }
+                    |   exp_variavel  { $$ = $1;}
+                    |   '(' expressao ')' {$$ = $2;}
+
+                    |   chamada { $$ = (Exp*)malloc(sizeof(Exp));
+                                  $$->tag = EXP_CHAMADA;
+
+                    }
+                    |   TK_NEW tipo '[' expressao ']'{ $$ = (Exp*)malloc(sizeof(Exp));
+
+                    }
+                    ;
+
+constante:              TK_DEC {  $$ = (Constante*)malloc(sizeof(Constante));
+                                  $$->tag = CDEC;
+                                  $$->val.i = yylval.int_val;
+                               }
+                    |   TK_REAL {  $$ = (Constante*)malloc(sizeof(Constante));
+                                   $$->tag = CREAL;
+                                   $$->val.f = yylval.float_val;
+                                }
+                    |   TK_STRING {  $$ = (Constante*)malloc(sizeof(Constante));
+                                     $$->tag = CSTRING;
+                                     $$->val.s = yylval.str_val;
+                                  }
+                    ;
+
+ID: TK_ID           { $$ = yylval.str_val;                    }
                     ;
 
 %%

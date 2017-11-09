@@ -150,16 +150,16 @@ union YYSTYPE
   DefVar* defVar;
   DefFunc* defFunc;
   Tipo* t;
-/*
-  ParametroL* params;
-  Exp* exp;
-
-  CMDL* cmd;
+  ParametroL* paramsL;
   Bloco* bloco;
   DefVarL* defvars;
-  ExpL* expl;
+  CMD *cmd;
+  CMDL *cmdL;
+  Exp* exp;
   Constante* cons;
-  */
+  Var *var;
+  ExpL* expl;
+
 
 #line 165 "grammar.tab.c" /* yacc.c:355  */
 };
@@ -430,16 +430,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  8
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   134
+#define YYLAST   132
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  41
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  29
+#define YYNNTS  31
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  71
+#define YYNRULES  73
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  126
+#define YYNSTATES  128
 
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
@@ -485,16 +485,16 @@ static const yytype_uint8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
-       0,    74,    74,    79,    80,    83,    88,    94,   102,   109,
-     115,   116,   117,   118,   121,   124,   125,   128,   129,   132,
-     135,   138,   139,   142,   143,   146,   147,   148,   149,   150,
-     151,   152,   153,   154,   157,   158,   161,   164,   165,   168,
-     169,   172,   175,   176,   179,   180,   183,   184,   185,   186,
-     187,   188,   189,   192,   193,   194,   197,   198,   199,   202,
-     203,   204,   208,   209,   212,   213,   214,   215,   216,   217,
-     218,   221
+       0,    83,    83,    88,    89,    92,    98,   104,   110,   115,
+     121,   122,   123,   124,   127,   135,   136,   139,   140,   145,
+     152,   161,   162,   172,   180,   181,   187,   191,   195,   199,
+     202,   207,   212,   218,   223,   229,   234,   241,   248,   249,
+     252,   256,   261,   264,   265,   272,   273,   280,   281,   286,
+     291,   296,   301,   306,   313,   314,   319,   326,   327,   332,
+     339,   340,   344,   351,   352,   359,   363,   364,   366,   370,
+     375,   379,   383,   389
 };
 #endif
 
@@ -511,10 +511,10 @@ static const char *const yytname[] =
   "'<'", "'>'", "'+'", "'-'", "'*'", "'/'", "'!'", "$accept", "programa",
   "lista_definicoes", "definicao", "def_variavel", "tipo",
   "tipo_primitivo", "def_funcao", "parametros", "lista_params",
-  "parametro", "bloco", "lista_def_var", "lista_comandos", "comando",
-  "variavel", "chamada", "lista_exp", "lista_exp2", "expressao", "exp_or",
-  "exp_and", "exp_cmp", "exp_add", "exp_mult", "exp_unaria", "exp_as",
-  "expressao_base", "ID", YY_NULLPTR
+  "parametro", "bloco", "lista_def_var", "lista_def_var2",
+  "lista_comandos", "comando", "exp_variavel", "chamada", "lista_exp",
+  "lista_exp2", "expressao", "exp_or", "exp_and", "exp_cmp", "exp_add",
+  "exp_mult", "exp_unaria", "exp_as", "expressao_base", "constante", "ID", YY_NULLPTR
 };
 #endif
 
@@ -531,10 +531,10 @@ static const yytype_uint16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF -40
+#define YYPACT_NINF -52
 
 #define yypact_value_is_default(Yystate) \
-  (!!((Yystate) == (-40)))
+  (!!((Yystate) == (-52)))
 
 #define YYTABLE_NINF -1
 
@@ -545,19 +545,19 @@ static const yytype_uint16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -13,   -40,    11,   -40,   -13,   -40,   -40,     4,   -40,   -40,
-     115,   -13,   -40,   -40,   -40,   -40,    31,   -40,    -9,   -40,
-       0,    -2,   -40,    14,    19,   -13,   115,   -40,   115,   -40,
-      27,    13,   -40,   -40,    81,   115,    65,    65,    10,   -40,
-     -40,   -40,    65,    65,   -40,   -40,    42,    81,    52,    53,
-      61,    22,    72,    65,    65,   -40,   -40,    60,    83,    86,
-      82,    39,    29,   -40,   -40,    -7,    80,    60,   -40,    85,
-      84,    90,   -40,   -40,    65,   -40,    65,    65,    44,   -40,
-     -40,   101,    65,    65,    65,    65,    65,    65,    65,    65,
-      65,    65,    65,    65,   115,   -40,   -40,   -40,   -40,    91,
-      96,    95,   -40,    97,    98,    60,    86,    82,    39,    39,
-      39,    39,    39,    39,    29,    29,   -40,   -40,    27,   -40,
-     -40,   -40,    65,   -40,   -40,   -40
+      -6,   -52,    14,   -52,    -6,   -52,   -52,     0,   -52,   -52,
+      52,    -6,   -52,   -52,   -52,   -52,    38,   -52,    -7,   -52,
+       6,     1,   -52,    13,    24,    -6,    52,   -52,    52,   -52,
+       4,    -5,   -52,   -52,    83,    52,    67,    67,    27,   -52,
+     -52,   -52,    67,    67,   -52,   -52,   -52,    21,    83,    42,
+      53,    12,   -52,     3,    59,    67,    67,   -52,   -52,    55,
+      66,    68,    84,    29,    31,   -52,   -52,    -9,    65,    55,
+     -52,    75,    78,    85,   -52,   -52,    67,   -52,    67,    67,
+      46,   -52,   -52,    99,    67,    67,    67,    67,    67,    67,
+      67,    67,    67,    67,    67,    67,    52,   -52,   -52,   -52,
+     -52,    87,    86,    88,   -52,    97,    91,    55,    68,    84,
+      29,    29,    29,    29,    29,    29,    31,    31,   -52,   -52,
+       4,   -52,   -52,   -52,    67,   -52,   -52,   -52
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -565,35 +565,37 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       0,    71,     0,     2,     3,     5,     6,     0,     1,     4,
+       0,    73,     0,     2,     3,     5,     6,     0,     1,     4,
        0,    15,    10,    11,    12,    13,     0,     8,     0,    16,
       17,     0,     7,     0,     0,     0,     0,     9,     0,    18,
-      19,     0,    21,    14,    23,     0,     0,     0,     0,    64,
-      65,    66,     0,     0,    22,    25,     0,    23,    67,    69,
-       0,    34,     0,     0,     0,    67,    69,     0,    41,    42,
-      44,    46,    53,    56,    59,    62,    34,     0,    28,     0,
-       0,     0,    20,    24,     0,    33,     0,    37,     0,    60,
-      61,    30,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,    32,    27,    68,    26,     0,
-       0,     0,    38,    39,     0,     0,    43,    45,    47,    48,
-      49,    50,    51,    52,    54,    55,    57,    58,    63,    29,
-      35,    36,     0,    70,    31,    40
+      19,     0,    21,    14,    24,     0,     0,     0,     0,    70,
+      71,    72,     0,     0,    23,    26,    22,     0,    24,    66,
+      68,     0,    65,    35,     0,     0,     0,    66,    68,     0,
+      42,    43,    45,    47,    54,    57,    60,    63,    35,     0,
+      29,     0,     0,     0,    20,    25,     0,    34,     0,    38,
+       0,    61,    62,    31,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    33,    28,    67,
+      27,     0,     0,     0,    39,    40,     0,     0,    44,    46,
+      48,    49,    50,    51,    52,    53,    55,    56,    58,    59,
+      64,    30,    36,    37,     0,    69,    32,    41
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -40,   -40,   121,   -40,    93,   -25,   -40,   -40,   -40,   103,
-     -40,   -31,   -40,    87,   -40,   -14,   -12,   -40,     7,   -30,
-     -40,    48,    49,   -24,    -8,   -39,   -40,    -6,     5
+     -52,   -52,   110,   -52,    93,   -25,   -52,   -52,   -52,   103,
+     -52,   -31,   -52,   -52,    81,   -52,   -17,   -16,   -52,     7,
+     -30,   -52,    48,    45,    34,   -14,   -51,   -52,   -15,   -52,
+      11
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
       -1,     2,     3,     4,     5,    16,    17,     6,    18,    19,
-      20,    45,    34,    46,    47,    55,    56,   101,   102,   103,
-      58,    59,    60,    61,    62,    63,    64,    65,    66
+      20,    45,    34,    46,    47,    48,    57,    58,   103,   104,
+     105,    60,    61,    62,    63,    64,    65,    66,    67,    52,
+      68
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -601,57 +603,57 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_uint8 yytable[] =
 {
-      33,    30,     1,    31,    94,     7,    57,    67,    69,     7,
-      52,     8,    70,    71,    79,    80,    21,    35,    76,    24,
-      48,    26,    49,    39,    40,     1,    81,    10,    50,    25,
-      21,    11,    41,    48,    68,    49,    95,    42,    23,    51,
-      27,    50,    28,    32,    99,    10,   100,    53,   104,    77,
-      54,    35,    23,   116,   117,    22,    23,    39,    40,     1,
-     108,   109,   110,   111,   112,   113,    41,    92,    93,   118,
-      27,    42,    35,    72,   124,    90,    91,    75,    39,    40,
-       1,    53,   114,   115,    54,    74,    76,    41,    35,    36,
-      32,    37,    42,    38,    39,    40,     1,    78,    84,    85,
-      86,    87,    53,    41,    82,    54,    83,    77,    42,    96,
-     105,    32,    97,    43,    98,   119,    88,    89,    12,    13,
-      14,    15,   120,   121,   123,     9,   122,    44,    29,   125,
-     106,     0,   107,     0,    73
+      33,    30,    96,    31,    81,    82,    59,    69,    71,     1,
+      54,     7,    72,    73,     8,     7,    78,    49,    50,    51,
+      23,    24,    21,    10,    26,    32,    10,    11,    83,    23,
+      79,    49,    50,    51,    35,    25,    21,    78,    97,    27,
+      39,    40,     1,   118,   119,    53,   101,    28,   102,    41,
+     106,    70,    74,    35,    42,    12,    13,    14,    15,    39,
+      40,     1,    22,    23,    55,    92,    93,    56,    41,    94,
+      95,   120,    27,    42,    35,    76,   126,    77,   116,   117,
+      39,    40,     1,    55,    80,    32,    56,    84,    85,    41,
+      35,    36,    79,    37,    42,    38,    39,    40,     1,    98,
+      86,    87,    88,    89,    55,    41,    99,    56,   107,   100,
+      42,   121,   122,    32,     9,    43,   123,   125,    90,    91,
+     110,   111,   112,   113,   114,   115,   124,    44,    29,    75,
+     109,   127,   108
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_uint8 yycheck[] =
 {
-      31,    26,    15,    28,    11,     0,    36,    37,    38,     4,
-      35,     0,    42,    43,    53,    54,    11,     7,    25,    28,
-      34,    23,    34,    13,    14,    15,    57,    23,    34,    29,
-      25,    27,    22,    47,    24,    47,    67,    27,    25,    34,
-      26,    47,    23,    30,    74,    23,    76,    37,    78,    27,
-      40,     7,    25,    92,    93,    24,    25,    13,    14,    15,
-      84,    85,    86,    87,    88,    89,    22,    38,    39,    94,
-      26,    27,     7,    31,   105,    36,    37,    24,    13,    14,
-      15,    37,    90,    91,    40,    33,    25,    22,     7,     8,
-      30,    10,    27,    12,    13,    14,    15,    25,    16,    17,
-      18,    19,    37,    22,    21,    40,    20,    27,    27,    24,
-       9,    30,    28,    32,    24,    24,    34,    35,     3,     4,
-       5,     6,    26,    28,    26,     4,    29,    34,    25,   122,
-      82,    -1,    83,    -1,    47
+      31,    26,    11,    28,    55,    56,    36,    37,    38,    15,
+      35,     0,    42,    43,     0,     4,    25,    34,    34,    34,
+      25,    28,    11,    23,    23,    30,    23,    27,    59,    25,
+      27,    48,    48,    48,     7,    29,    25,    25,    69,    26,
+      13,    14,    15,    94,    95,    34,    76,    23,    78,    22,
+      80,    24,    31,     7,    27,     3,     4,     5,     6,    13,
+      14,    15,    24,    25,    37,    36,    37,    40,    22,    38,
+      39,    96,    26,    27,     7,    33,   107,    24,    92,    93,
+      13,    14,    15,    37,    25,    30,    40,    21,    20,    22,
+       7,     8,    27,    10,    27,    12,    13,    14,    15,    24,
+      16,    17,    18,    19,    37,    22,    28,    40,     9,    24,
+      27,    24,    26,    30,     4,    32,    28,    26,    34,    35,
+      86,    87,    88,    89,    90,    91,    29,    34,    25,    48,
+      85,   124,    84
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    15,    42,    43,    44,    45,    48,    69,     0,    43,
+       0,    15,    42,    43,    44,    45,    48,    71,     0,    43,
       23,    27,     3,     4,     5,     6,    46,    47,    49,    50,
-      51,    69,    24,    25,    28,    29,    23,    26,    23,    50,
+      51,    71,    24,    25,    28,    29,    23,    26,    23,    50,
       46,    46,    30,    52,    53,     7,     8,    10,    12,    13,
       14,    22,    27,    32,    45,    52,    54,    55,    56,    57,
-      68,    69,    46,    37,    40,    56,    57,    60,    61,    62,
-      63,    64,    65,    66,    67,    68,    69,    60,    24,    60,
-      60,    60,    31,    54,    33,    24,    25,    27,    25,    66,
-      66,    52,    21,    20,    16,    17,    18,    19,    34,    35,
-      36,    37,    38,    39,    11,    52,    24,    28,    24,    60,
-      60,    58,    59,    60,    60,     9,    62,    63,    64,    64,
-      64,    64,    64,    64,    65,    65,    66,    66,    46,    24,
-      26,    28,    29,    26,    52,    59
+      58,    69,    70,    71,    46,    37,    40,    57,    58,    61,
+      62,    63,    64,    65,    66,    67,    68,    69,    71,    61,
+      24,    61,    61,    61,    31,    55,    33,    24,    25,    27,
+      25,    67,    67,    52,    21,    20,    16,    17,    18,    19,
+      34,    35,    36,    37,    38,    39,    11,    52,    24,    28,
+      24,    61,    61,    59,    60,    61,    61,     9,    63,    64,
+      65,    65,    65,    65,    65,    65,    66,    66,    67,    67,
+      46,    24,    26,    28,    29,    26,    52,    60
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -659,12 +661,12 @@ static const yytype_uint8 yyr1[] =
 {
        0,    41,    42,    43,    43,    44,    44,    45,    46,    46,
       47,    47,    47,    47,    48,    49,    49,    50,    50,    51,
-      52,    53,    53,    54,    54,    55,    55,    55,    55,    55,
-      55,    55,    55,    55,    56,    56,    57,    58,    58,    59,
-      59,    60,    61,    61,    62,    62,    63,    63,    63,    63,
-      63,    63,    63,    64,    64,    64,    65,    65,    65,    66,
-      66,    66,    67,    67,    68,    68,    68,    68,    68,    68,
-      68,    69
+      52,    53,    53,    54,    55,    55,    56,    56,    56,    56,
+      56,    56,    56,    56,    56,    57,    57,    58,    59,    59,
+      60,    60,    61,    62,    62,    63,    63,    64,    64,    64,
+      64,    64,    64,    64,    65,    65,    65,    66,    66,    66,
+      67,    67,    67,    68,    68,    69,    69,    69,    69,    69,
+      70,    70,    70,    71
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -672,12 +674,12 @@ static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     1,     2,     1,     1,     4,     1,     3,
        1,     1,     1,     1,     7,     0,     1,     1,     3,     3,
-       4,     0,     2,     0,     2,     1,     3,     3,     2,     4,
-       3,     5,     3,     2,     1,     4,     4,     0,     1,     1,
-       3,     1,     1,     3,     1,     3,     1,     3,     3,     3,
-       3,     3,     3,     1,     3,     3,     1,     3,     3,     1,
-       2,     2,     1,     3,     1,     1,     1,     1,     3,     1,
-       5,     1
+       4,     0,     2,     1,     0,     2,     1,     3,     3,     2,
+       4,     3,     5,     3,     2,     1,     4,     4,     0,     1,
+       1,     3,     1,     1,     3,     1,     3,     1,     3,     3,
+       3,     3,     3,     3,     1,     3,     3,     1,     3,     3,
+       1,     2,     2,     1,     3,     1,     1,     3,     1,     5,
+       1,     1,     1,     1
 };
 
 
@@ -1354,60 +1356,58 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 74 "grammar.y" /* yacc.c:1646  */
+#line 83 "grammar.y" /* yacc.c:1646  */
     {  (yyval.prog) = (Programa*)malloc(sizeof(Programa));
                                             (yyval.prog)->defs = (yyvsp[0].def);
                                             nodePrograma = (yyval.prog);}
-#line 1362 "grammar.tab.c" /* yacc.c:1646  */
+#line 1364 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 79 "grammar.y" /* yacc.c:1646  */
+#line 88 "grammar.y" /* yacc.c:1646  */
     {(yyval.def) = (yyvsp[0].def);}
-#line 1368 "grammar.tab.c" /* yacc.c:1646  */
+#line 1370 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 80 "grammar.y" /* yacc.c:1646  */
+#line 89 "grammar.y" /* yacc.c:1646  */
     {(yyval.def) = (yyvsp[-1].def); (yyval.def)->prox = (yyvsp[0].def);}
-#line 1374 "grammar.tab.c" /* yacc.c:1646  */
+#line 1376 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 83 "grammar.y" /* yacc.c:1646  */
+#line 92 "grammar.y" /* yacc.c:1646  */
     {  (yyval.def) = (Definicao*)malloc(sizeof(Definicao));
+                                        (yyvsp[0].defVar)->escopo = EscopoGlobal;
                                         (yyval.def)->u.v = (yyvsp[0].defVar);
                                         (yyval.def)->tag = DVar;
                                         (yyval.def)->prox = NULL;
                                      }
-#line 1384 "grammar.tab.c" /* yacc.c:1646  */
+#line 1387 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 88 "grammar.y" /* yacc.c:1646  */
+#line 98 "grammar.y" /* yacc.c:1646  */
     {    (yyval.def) = (Definicao*)malloc(sizeof(Definicao));
                                         (yyval.def)->u.f = (yyvsp[0].defFunc);
                                         (yyval.def)->tag = DFunc;
                                         (yyval.def)->prox = NULL;}
-#line 1393 "grammar.tab.c" /* yacc.c:1646  */
+#line 1396 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 94 "grammar.y" /* yacc.c:1646  */
+#line 104 "grammar.y" /* yacc.c:1646  */
     {  (yyval.defVar) = (DefVar*)malloc(sizeof(DefVar));
                                               (yyval.defVar)->id = (yyvsp[-3].str_val);
-                                              printf("%s",(yyvsp[-3].str_val));
                                               (yyval.defVar)->tipo = (yyvsp[-1].t);
-                                              (yyval.defVar)->escopo = EscopoGlobal;
                                               }
-#line 1404 "grammar.tab.c" /* yacc.c:1646  */
+#line 1405 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 102 "grammar.y" /* yacc.c:1646  */
+#line 110 "grammar.y" /* yacc.c:1646  */
     {  (yyval.t) = (Tipo*)malloc(sizeof(Tipo));
                                           (yyval.t)->tag = base;
-                                          //printf("base %d\n",$1);
                                           (yyval.t)->tipo_base = (yyvsp[0].int_val);
                                           (yyval.t)->de = NULL;
                                           }
@@ -1415,7 +1415,7 @@ yyreduce:
     break;
 
   case 9:
-#line 109 "grammar.y" /* yacc.c:1646  */
+#line 115 "grammar.y" /* yacc.c:1646  */
     {   (yyval.t) = (Tipo*)malloc(sizeof(Tipo));
                                           (yyval.t)->tag = array;
                                           (yyval.t)->de = (yyvsp[-2].t);
@@ -1424,45 +1424,548 @@ yyreduce:
     break;
 
   case 10:
-#line 115 "grammar.y" /* yacc.c:1646  */
+#line 121 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bInt;}
 #line 1430 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 116 "grammar.y" /* yacc.c:1646  */
+#line 122 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bFloat;}
 #line 1436 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 117 "grammar.y" /* yacc.c:1646  */
+#line 123 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bChar;}
 #line 1442 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 118 "grammar.y" /* yacc.c:1646  */
+#line 124 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bVoid;}
 #line 1448 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 121 "grammar.y" /* yacc.c:1646  */
-    {(yyval.defFunc) = (DefFunc*)malloc(sizeof(DefFunc));}
-#line 1454 "grammar.tab.c" /* yacc.c:1646  */
+#line 127 "grammar.y" /* yacc.c:1646  */
+    {(yyval.defFunc) = (DefFunc*)malloc(sizeof(DefFunc));
+                                                              (yyval.defFunc)->tiporet = (yyvsp[-1].t);
+                                                              (yyval.defFunc)->id = (yyvsp[-6].str_val);
+                                                              (yyval.defFunc)->params = (yyvsp[-4].paramsL);
+                                                              //$$->bloco = $7;
+                                                             }
+#line 1459 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 15:
+#line 135 "grammar.y" /* yacc.c:1646  */
+    {(yyval.paramsL) = NULL;}
+#line 1465 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 16:
+#line 136 "grammar.y" /* yacc.c:1646  */
+    {(yyval.paramsL) = (yyvsp[0].paramsL);}
+#line 1471 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 17:
+#line 139 "grammar.y" /* yacc.c:1646  */
+    {(yyval.paramsL) = (yyvsp[0].paramsL);}
+#line 1477 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 18:
+#line 140 "grammar.y" /* yacc.c:1646  */
+    {(yyval.paramsL) = (yyvsp[-2].paramsL);
+                                                    (yyval.paramsL)->prox = (yyvsp[0].paramsL);
+                                                    }
+#line 1485 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 19:
+#line 145 "grammar.y" /* yacc.c:1646  */
+    { (yyval.paramsL) = (ParametroL*)malloc(sizeof(ParametroL));
+                                      (yyval.paramsL)->id = (yyvsp[-2].str_val);
+                                      (yyval.paramsL)->tipo = (yyvsp[0].t);
+                                      (yyval.paramsL)->prox = NULL;
+    }
+#line 1495 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 20:
+#line 152 "grammar.y" /* yacc.c:1646  */
+    {(yyval.bloco) = (Bloco*)malloc(sizeof(Bloco));
+                                                               if((yyvsp[-2].defvars) != NULL) (yyval.bloco)->declVars = (yyvsp[-2].defvars)->prim;
+                                                               else (yyval.bloco)->declVars = (yyvsp[-2].defvars);
+                                                               print_bloco((yyval.bloco));
+
+
+                                                              }
+#line 1507 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 21:
+#line 161 "grammar.y" /* yacc.c:1646  */
+    {(yyval.defvars) = NULL;}
+#line 1513 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 22:
+#line 162 "grammar.y" /* yacc.c:1646  */
+    {
+
+                                                        if ((yyvsp[-1].defvars) != NULL) {
+                                                          (yyvsp[-1].defvars)->prox = (yyvsp[0].defvars);
+                                                          (yyval.defvars) = (yyvsp[0].defvars) ;
+                                                          (yyvsp[0].defvars)->prim = (yyvsp[-1].defvars)->prim;
+                                                        }
+                                                        else{(yyval.defvars) = (yyvsp[0].defvars);(yyval.defvars)->prim = (yyval.defvars);}
+                                                    }
+#line 1527 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 23:
+#line 172 "grammar.y" /* yacc.c:1646  */
+    {
+                                (yyval.defvars) = (DefVarL*)malloc(sizeof(DefVarL));
+                                (yyvsp[0].defVar)->escopo = EscopoLocal;
+                                (yyval.defvars)->v = (yyvsp[0].defVar);
+                                (yyval.defvars)->prox = NULL;
+                                (yyval.defvars)->prim = NULL;
+}
+#line 1539 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 24:
+#line 180 "grammar.y" /* yacc.c:1646  */
+    {(yyval.cmdL) = NULL;}
+#line 1545 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 25:
+#line 181 "grammar.y" /* yacc.c:1646  */
+    {(yyval.cmdL) = (CMDL*)malloc(sizeof(CMDL));
+                                                (yyval.cmdL)->c = (yyvsp[-1].cmd);
+                                                (yyval.cmdL)->prox = (yyvsp[0].cmdL);
+                                               }
+#line 1554 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 26:
+#line 187 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                (yyval.cmd)->tag = CMD_BLOCK;
+                                (yyval.cmd)->u.bloco = (yyvsp[0].bloco);
+                              }
+#line 1563 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
+#line 191 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                           (yyval.cmd)->tag = CMD_PRINT;
+                                           (yyval.cmd)->u.exp = (yyvsp[-1].exp);
+                                        }
+#line 1572 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 28:
+#line 195 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                                  (yyval.cmd)->tag = CMD_RETURN;
+                                                  (yyval.cmd)->u.exp = (yyvsp[-1].exp);
+                                                }
+#line 1581 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 29:
+#line 199 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                        (yyval.cmd)->tag = CMD_RETURNVOID;
+                                      }
+#line 1589 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 30:
+#line 202 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                                     (yyval.cmd)->tag = CMD_ATR;
+                                                     (yyval.cmd)->u.atr.expvar = (yyvsp[-3].exp);
+                                                     (yyval.cmd)->u.atr.exp = (yyvsp[-1].exp);
+                                                   }
+#line 1599 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 31:
+#line 207 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                                  (yyval.cmd)->tag = CMD_IF;
+                                                  (yyval.cmd)->u.cmdif.exp = (yyvsp[-1].exp);
+                                                  (yyval.cmd)->u.cmdif.bloco = (yyvsp[0].bloco);
+                                                }
+#line 1609 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 32:
+#line 212 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                                                  (yyval.cmd)->tag = CMD_IFELSE;
+                                                                  (yyval.cmd)->u.cmdifelse.exp = (yyvsp[-3].exp);
+                                                                  (yyval.cmd)->u.cmdifelse.blocoif = (yyvsp[-2].bloco);
+                                                                  (yyval.cmd)->u.cmdifelse.blocoelse = (yyvsp[0].bloco);
+                                                                }
+#line 1620 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 33:
+#line 218 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                                         (yyval.cmd)->tag = CMD_WHILE;
+                                                         (yyval.cmd)->u.cmdwhile.exp = (yyvsp[-1].exp);
+                                                         (yyval.cmd)->u.cmdwhile.bloco = (yyvsp[0].bloco);
+                                                       }
+#line 1630 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 34:
+#line 223 "grammar.y" /* yacc.c:1646  */
+    { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
+                                      (yyval.cmd)->tag = CMD_CHAMADA;
+                                      (yyval.cmd)->u.exp = (yyvsp[-1].exp);
+                                    }
+#line 1639 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 35:
+#line 229 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                 (yyval.exp)->tag = EXP_VAR;
+                                 (yyval.exp)->u.expvar = (Var*)malloc(sizeof(Var));
+                                 (yyval.exp)->u.expvar->id = (yyvsp[0].str_val);
+                           }
+#line 1649 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 36:
+#line 234 "grammar.y" /* yacc.c:1646  */
+    {  (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                            (yyval.exp)->tag = EXP_ACESSO;
+                                                            (yyval.exp)->u.expacesso.expvar = (yyvsp[-3].exp);
+                                                            (yyval.exp)->u.expacesso.expindex = (yyvsp[-1].exp);
+                    }
+#line 1659 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 37:
+#line 241 "grammar.y" /* yacc.c:1646  */
+    {  (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                (yyval.exp)->tag = EXP_CHAMADA;
+                                                (yyval.exp)->u.expchamada.idFunc = (yyvsp[-3].str_val);
+                                                (yyval.exp)->u.expchamada.params = (yyvsp[-1].expl);
+                                             }
+#line 1669 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 38:
+#line 248 "grammar.y" /* yacc.c:1646  */
+    {(yyval.expl) = NULL;}
+#line 1675 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 39:
+#line 249 "grammar.y" /* yacc.c:1646  */
+    { (yyval.expl) = (yyvsp[0].expl);}
+#line 1681 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 40:
+#line 252 "grammar.y" /* yacc.c:1646  */
+    { (yyval.expl) = (ExpL*)malloc(sizeof(ExpL));
+                                    (yyval.expl)->e = (yyvsp[0].exp);
+                                    (yyval.expl)->prox = NULL;
+                                  }
+#line 1690 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 41:
+#line 256 "grammar.y" /* yacc.c:1646  */
+    {(yyval.expl) = (ExpL*)malloc(sizeof(ExpL));
+                                                        (yyval.expl)->e = (yyvsp[-2].exp);
+                                                        (yyval.expl)->prox = (yyvsp[0].expl);}
+#line 1698 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 42:
+#line 261 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1704 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 43:
+#line 264 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1710 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 44:
+#line 265 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                (yyval.exp)->tag = EXP_OR;
+                                                (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                              }
+#line 1720 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 45:
+#line 272 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1726 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 46:
+#line 273 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                (yyval.exp)->tag = EXP_AND;
+                                                (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                              }
+#line 1736 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 47:
+#line 280 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1742 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 48:
+#line 281 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_CMP;
+                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    }
+#line 1752 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 49:
+#line 286 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_CMP;
+                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    }
+#line 1762 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 50:
+#line 291 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_CMP;
+                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    }
+#line 1772 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 51:
+#line 296 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_CMP;
+                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    }
+#line 1782 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 52:
+#line 301 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_CMP;
+                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    }
+#line 1792 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 53:
+#line 306 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_CMP;
+                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    }
+#line 1802 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 54:
+#line 313 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1808 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 55:
+#line 314 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                (yyval.exp)->tag = EXP_ADD;
+                                                (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                              }
+#line 1818 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 319 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                (yyval.exp)->tag = EXP_SUB;
+                                                (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                              }
+#line 1828 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 57:
+#line 326 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1834 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 58:
+#line 327 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                  (yyval.exp)->tag = EXP_MULT;
+                                                  (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                  (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                }
+#line 1844 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 59:
+#line 332 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                  (yyval.exp)->tag = EXP_DIV;
+                                                  (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                  (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                }
+#line 1854 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 60:
+#line 339 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1860 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
+#line 340 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                            (yyval.exp)->tag = EXP_UNARIA;
+                                            (yyval.exp)->u.expunaria.exp = (yyvsp[0].exp);
+                                          }
+#line 1869 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 62:
+#line 344 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                            (yyval.exp)->tag = EXP_UNARIA;
+                                            (yyval.exp)->u.expunaria.exp = (yyvsp[0].exp);
+                                          }
+#line 1878 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 63:
+#line 351 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1884 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 64:
+#line 352 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                    (yyval.exp)->tag = EXP_AS;
+                                                    (yyval.exp)->u.expnewas.exp = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expnewas.tipo = (yyvsp[0].t);
+                                                  }
+#line 1894 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 65:
+#line 359 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                    (yyval.exp)->tag = EXP_CTE;
+                                    (yyval.exp)->u.expcte = (yyvsp[0].cons);
+                                  }
+#line 1903 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 66:
+#line 363 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (yyvsp[0].exp);}
+#line 1909 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 67:
+#line 364 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[-1].exp);}
+#line 1915 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 68:
+#line 366 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                  (yyval.exp)->tag = EXP_CHAMADA;
+
+                    }
+#line 1924 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 69:
+#line 370 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+
+                    }
+#line 1932 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 70:
+#line 375 "grammar.y" /* yacc.c:1646  */
+    {  (yyval.cons) = (Constante*)malloc(sizeof(Constante));
+                                  (yyval.cons)->tag = CDEC;
+                                  (yyval.cons)->val.i = yylval.int_val;
+                               }
+#line 1941 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 221 "grammar.y" /* yacc.c:1646  */
-    { (yyval.str_val) = yylval.str_val;
-                      printf("id:%s\n",(yyval.str_val));
-                    }
-#line 1462 "grammar.tab.c" /* yacc.c:1646  */
+#line 379 "grammar.y" /* yacc.c:1646  */
+    {  (yyval.cons) = (Constante*)malloc(sizeof(Constante));
+                                   (yyval.cons)->tag = CREAL;
+                                   (yyval.cons)->val.f = yylval.float_val;
+                                }
+#line 1950 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 72:
+#line 383 "grammar.y" /* yacc.c:1646  */
+    {  (yyval.cons) = (Constante*)malloc(sizeof(Constante));
+                                     (yyval.cons)->tag = CSTRING;
+                                     (yyval.cons)->val.s = yylval.str_val;
+                                  }
+#line 1959 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 73:
+#line 389 "grammar.y" /* yacc.c:1646  */
+    { (yyval.str_val) = yylval.str_val;                    }
+#line 1965 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1466 "grammar.tab.c" /* yacc.c:1646  */
+#line 1969 "grammar.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1690,7 +2193,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 226 "grammar.y" /* yacc.c:1906  */
+#line 392 "grammar.y" /* yacc.c:1906  */
 
 
 void yyerror(const char *str) {

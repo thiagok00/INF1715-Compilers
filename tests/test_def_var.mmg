@@ -1,1 +1,5 @@
-x: int;
+funcao(): void {
+  myint : int;
+  myfloat : float;
+  sat : float;
+  }

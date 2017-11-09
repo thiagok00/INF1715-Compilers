@@ -13,7 +13,7 @@ typedef struct Constante
 	union {
 		const char* s;
 		int i;
-		double d;
+		float f;
 	} val;
 } Constante;
 
@@ -42,15 +42,17 @@ typedef struct DefVar
 	EscopoTag escopo;
 } DefVar;
 
-typedef struct DefVarL
-{
-	DefVar* dv;
-	struct DefVarL* prox;
-} DefVarL;
-
 /*
 * Bloco
 */
+typedef struct DefVarL
+{
+	DefVar* v;
+	struct DefVarL * prox;
+	struct DefVarL * prim;
+} DefVarL;
+
+
 typedef struct Bloco {
   DefVarL *declVars;
   struct CMDL *cmds;
@@ -61,7 +63,7 @@ typedef struct Bloco {
 */
 typedef struct ParametroL
 {
-	Tipo *t;
+	Tipo *tipo;
 	char *id;
 	struct ParametroL *prox;
 } ParametroL;
@@ -108,12 +110,16 @@ typedef struct Var
 * Expressao
 */
 typedef enum EXP_TAG {
+	EXP_OR,
+	EXP_AND,
 	EXP_ADD,
 	EXP_SUB,
 	EXP_MULT,
 	EXP_DIV,
 	EXP_UNARIA,
+	EXP_CTE,
 	EXP_VAR,
+	EXP_ACESSO,
 	EXP_CHAMADA,
 	EXP_BASE,
 	EXP_CMP,
@@ -123,44 +129,43 @@ typedef enum EXP_TAG {
 } EXP_TAG;
 
 //TODO sera que precisa de parentesis? '(' exp ')'
-typedef union Exp{
+typedef struct Exp{
 	EXP_TAG tag;
-  struct {
-    EXP_TAG tag;
-    Var *v;
-  } expvar;
-  struct {
-    EXP_TAG tag;
-    Constante *c;
-  } expcte;
-  struct {
-    EXP_TAG tag;
-    union Exp *e;
-    Tipo* tipo;
-  } expnewas;
-  struct {
-    EXP_TAG tag;
-    union Exp *exp;
-    enum {opnot,opmenos} opun;
-  } expunaria;
-  struct {
-    EXP_TAG tag;
-    union Exp *expesq;
-    union Exp *expdir;
-    enum {soma,sub,mult,divisao,equal,notequal,less,lessequal,greater,greaterequal,opand,opor} opbin;
-  } expbin;
-  struct {
-    EXP_TAG tag;
-    struct ExpL *params;
-    const char *idFunc;
-    //DefFunc *decl; pra costurar depois(?)
-  } expchamada;
+	union {
+	    Var *expvar;
+	    Constante *expcte;
+	  struct {
+	    struct Exp *exp;
+	    Tipo* tipo;
+	  } expnewas;
+	  struct {
+	    struct Exp *exp;
+	    enum {opnot,opmenos} opun;
+	  } expunaria;
+	  struct {
+	    struct Exp *expesq;
+	    struct Exp *expdir;
+	  } expbin;
+		struct {
+			struct Exp *expesq;
+			struct Exp *expdir;
+			//	enum {equal,notequal,less,lessequal,greater,greaterequal,opand,opor} opbin;
+		} expcmp;
+	  struct {
+	    struct ExpL *params;
+	    const char *idFunc;
+	    //DefFunc *decl; pra costurar depois(?)
+	  } expchamada;
+		struct {
+			struct Exp *expvar, *expindex;
+		} expacesso;
+	}u;
 }Exp;
 
 typedef struct ExpL
 {
 	Exp* e;
-	struct ExpLt* prox;
+	struct ExpL* prox;
 } ExpL ;
 
 /*
@@ -170,45 +175,39 @@ typedef enum CMD_TAG {
   CMD_ATR, /* atribuição */
   CMD_WHILE,
   CMD_IF,
+	CMD_IFELSE,
   CMD_SKIP,
   CMD_RETURN,
+	CMD_RETURNVOID,
   CMD_CHAMADA,
 	CMD_BLOCK,
 	CMD_PRINT,
   CMD_SEQ
 } CMD_TAG;
 
-typedef union CMD {
+typedef struct CMD {
   CMD_TAG tag;
-  struct {
-    CMD_TAG tag;
-    Exp *exp;
-  } cmdexp; /* return, print, chamada */
-  struct {
-    CMD_TAG tag;
-    Bloco *bloco;
-  } block;
-  struct {
-    CMD_TAG tag;
-		Exp* 	exp;
-    Bloco *bloco  ;
-	} cmdif;
-  struct {
-    CMD_TAG tag;
-		Exp* 	exp;
-    Bloco *blocoif;
-    Bloco *blocoelse;
-	} cmdifelse;
-  struct {
-    CMD_TAG tag;
-    Exp *exp;
-    Bloco *bloco;
-  } cmdwhile;
-  struct {
-    CMD_TAG tag;
-    Var *var;
-    Exp *exp;
-  } atr;
+	union {
+	    Exp *exp; /* return, print, chamada */
+	    Bloco *bloco;
+	  struct {
+			Exp* 	exp;
+	    Bloco *bloco  ;
+		} cmdif;
+	  struct {
+			Exp* 	exp;
+	    Bloco *blocoif;
+	    Bloco *blocoelse;
+		} cmdifelse;
+	  struct {
+	    Exp *exp;
+	    Bloco *bloco;
+	  } cmdwhile;
+	  struct {
+	    Exp *expvar;
+	    Exp *exp;
+	  } atr;
+	}u;
 } CMD;
 
 typedef struct CMDL
@@ -216,3 +215,7 @@ typedef struct CMDL
 	CMD* c;
 	struct CMDL* prox;
 } CMDL ;
+
+
+void print_bloco (Bloco *b);
+DefVarL* ABS_mergeList( DefVarL* list , DefVarL* element );

@@ -94,16 +94,16 @@ union YYSTYPE
   DefVar* defVar;
   DefFunc* defFunc;
   Tipo* t;
-/*
-  ParametroL* params;
-  Exp* exp;
-
-  CMDL* cmd;
+  ParametroL* paramsL;
   Bloco* bloco;
   DefVarL* defvars;
-  ExpL* expl;
+  CMD *cmd;
+  CMDL *cmdL;
+  Exp* exp;
   Constante* cons;
-  */
+  Var *var;
+  ExpL* expl;
+
 
 #line 109 "grammar.tab.h" /* yacc.c:1909  */
 };

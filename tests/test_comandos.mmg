@@ -2,7 +2,7 @@ funcao(): void {
   x : int;
   f : float;
   x = 1;
-  @ 1+2*5/3-x;  
+  @ 1+2*5/3-x;
 
   a = 10 as float;
   c = 98 as char;
