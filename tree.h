@@ -110,21 +110,13 @@ typedef struct Var
 * Expressao
 */
 typedef enum EXP_TAG {
-	EXP_OR,
-	EXP_AND,
-	EXP_ADD,
-	EXP_SUB,
-	EXP_MULT,
-	EXP_DIV,
+	EXP_BIN,
 	EXP_UNARIA,
 	EXP_CTE,
 	EXP_VAR,
 	EXP_ACESSO,
 	EXP_CHAMADA,
-	EXP_BASE,
-	EXP_CMP,
 	EXP_NEW,
-	EXP_VARVETOR /* SEI LA*/,
 	EXP_AS
 } EXP_TAG;
 
@@ -145,12 +137,8 @@ typedef struct Exp{
 	  struct {
 	    struct Exp *expesq;
 	    struct Exp *expdir;
+			enum {opadd,opsub,opmult,opdiv,equal,notequal,less,lessequal,greater,greaterequal,opand,opor} opbin;
 	  } expbin;
-		struct {
-			struct Exp *expesq;
-			struct Exp *expdir;
-			//	enum {equal,notequal,less,lessequal,greater,greaterequal,opand,opor} opbin;
-		} expcmp;
 	  struct {
 	    struct ExpL *params;
 	    const char *idFunc;
@@ -182,7 +170,6 @@ typedef enum CMD_TAG {
   CMD_CHAMADA,
 	CMD_BLOCK,
 	CMD_PRINT,
-  CMD_SEQ
 } CMD_TAG;
 
 typedef struct CMD {
@@ -217,5 +204,4 @@ typedef struct CMDL
 } CMDL ;
 
 
-void print_bloco (Bloco *b);
-DefVarL* ABS_mergeList( DefVarL* list , DefVarL* element );
+void print_tree (Programa *p);

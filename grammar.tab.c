@@ -488,13 +488,13 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint16 yyrline[] =
 {
        0,    83,    83,    88,    89,    92,    98,   104,   110,   115,
-     121,   122,   123,   124,   127,   135,   136,   139,   140,   145,
-     152,   161,   162,   172,   180,   181,   187,   191,   195,   199,
-     202,   207,   212,   218,   223,   229,   234,   241,   248,   249,
-     252,   256,   261,   264,   265,   272,   273,   280,   281,   286,
-     291,   296,   301,   306,   313,   314,   319,   326,   327,   332,
-     339,   340,   344,   351,   352,   359,   363,   364,   366,   370,
-     375,   379,   383,   389
+     122,   123,   124,   125,   128,   136,   137,   140,   141,   146,
+     153,   162,   163,   173,   181,   182,   188,   192,   196,   200,
+     203,   208,   213,   219,   224,   230,   236,   243,   250,   251,
+     254,   258,   263,   266,   267,   275,   276,   284,   285,   291,
+     297,   303,   309,   315,   323,   324,   330,   338,   339,   345,
+     353,   354,   359,   367,   368,   375,   379,   380,   381,   382,
+     389,   393,   397,   403
 };
 #endif
 
@@ -1418,102 +1418,103 @@ yyreduce:
 #line 115 "grammar.y" /* yacc.c:1646  */
     {   (yyval.t) = (Tipo*)malloc(sizeof(Tipo));
                                           (yyval.t)->tag = array;
+                                          (yyval.t)->tipo_base = (yyvsp[-2].t)->tipo_base;
                                           (yyval.t)->de = (yyvsp[-2].t);
                                       }
-#line 1424 "grammar.tab.c" /* yacc.c:1646  */
+#line 1425 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 121 "grammar.y" /* yacc.c:1646  */
+#line 122 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bInt;}
-#line 1430 "grammar.tab.c" /* yacc.c:1646  */
+#line 1431 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 122 "grammar.y" /* yacc.c:1646  */
+#line 123 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bFloat;}
-#line 1436 "grammar.tab.c" /* yacc.c:1646  */
+#line 1437 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 123 "grammar.y" /* yacc.c:1646  */
+#line 124 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bChar;}
-#line 1442 "grammar.tab.c" /* yacc.c:1646  */
+#line 1443 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 124 "grammar.y" /* yacc.c:1646  */
+#line 125 "grammar.y" /* yacc.c:1646  */
     {(yyval.int_val) = bVoid;}
-#line 1448 "grammar.tab.c" /* yacc.c:1646  */
+#line 1449 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 127 "grammar.y" /* yacc.c:1646  */
+#line 128 "grammar.y" /* yacc.c:1646  */
     {(yyval.defFunc) = (DefFunc*)malloc(sizeof(DefFunc));
                                                               (yyval.defFunc)->tiporet = (yyvsp[-1].t);
                                                               (yyval.defFunc)->id = (yyvsp[-6].str_val);
                                                               (yyval.defFunc)->params = (yyvsp[-4].paramsL);
-                                                              //$$->bloco = $7;
+                                                              (yyval.defFunc)->bloco = (yyvsp[0].bloco);
                                                              }
-#line 1459 "grammar.tab.c" /* yacc.c:1646  */
+#line 1460 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 135 "grammar.y" /* yacc.c:1646  */
+#line 136 "grammar.y" /* yacc.c:1646  */
     {(yyval.paramsL) = NULL;}
-#line 1465 "grammar.tab.c" /* yacc.c:1646  */
+#line 1466 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 136 "grammar.y" /* yacc.c:1646  */
+#line 137 "grammar.y" /* yacc.c:1646  */
     {(yyval.paramsL) = (yyvsp[0].paramsL);}
-#line 1471 "grammar.tab.c" /* yacc.c:1646  */
+#line 1472 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 139 "grammar.y" /* yacc.c:1646  */
+#line 140 "grammar.y" /* yacc.c:1646  */
     {(yyval.paramsL) = (yyvsp[0].paramsL);}
-#line 1477 "grammar.tab.c" /* yacc.c:1646  */
+#line 1478 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 140 "grammar.y" /* yacc.c:1646  */
+#line 141 "grammar.y" /* yacc.c:1646  */
     {(yyval.paramsL) = (yyvsp[-2].paramsL);
                                                     (yyval.paramsL)->prox = (yyvsp[0].paramsL);
                                                     }
-#line 1485 "grammar.tab.c" /* yacc.c:1646  */
+#line 1486 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 145 "grammar.y" /* yacc.c:1646  */
+#line 146 "grammar.y" /* yacc.c:1646  */
     { (yyval.paramsL) = (ParametroL*)malloc(sizeof(ParametroL));
                                       (yyval.paramsL)->id = (yyvsp[-2].str_val);
                                       (yyval.paramsL)->tipo = (yyvsp[0].t);
                                       (yyval.paramsL)->prox = NULL;
     }
-#line 1495 "grammar.tab.c" /* yacc.c:1646  */
+#line 1496 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 152 "grammar.y" /* yacc.c:1646  */
+#line 153 "grammar.y" /* yacc.c:1646  */
     {(yyval.bloco) = (Bloco*)malloc(sizeof(Bloco));
-                                                               if((yyvsp[-2].defvars) != NULL) (yyval.bloco)->declVars = (yyvsp[-2].defvars)->prim;
-                                                               else (yyval.bloco)->declVars = (yyvsp[-2].defvars);
-                                                               print_bloco((yyval.bloco));
-
-
+                                                               if((yyvsp[-2].defvars) != NULL)
+                                                                  (yyval.bloco)->declVars = (yyvsp[-2].defvars)->prim;
+                                                               else
+                                                                  (yyval.bloco)->declVars = (yyvsp[-2].defvars);
+                                                               (yyval.bloco)->cmds = (yyvsp[-1].cmdL);
                                                               }
-#line 1507 "grammar.tab.c" /* yacc.c:1646  */
+#line 1508 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 161 "grammar.y" /* yacc.c:1646  */
+#line 162 "grammar.y" /* yacc.c:1646  */
     {(yyval.defvars) = NULL;}
-#line 1513 "grammar.tab.c" /* yacc.c:1646  */
+#line 1514 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 162 "grammar.y" /* yacc.c:1646  */
+#line 163 "grammar.y" /* yacc.c:1646  */
     {
 
                                                         if ((yyvsp[-1].defvars) != NULL) {
@@ -1523,11 +1524,11 @@ yyreduce:
                                                         }
                                                         else{(yyval.defvars) = (yyvsp[0].defvars);(yyval.defvars)->prim = (yyval.defvars);}
                                                     }
-#line 1527 "grammar.tab.c" /* yacc.c:1646  */
+#line 1528 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 172 "grammar.y" /* yacc.c:1646  */
+#line 173 "grammar.y" /* yacc.c:1646  */
     {
                                 (yyval.defvars) = (DefVarL*)malloc(sizeof(DefVarL));
                                 (yyvsp[0].defVar)->escopo = EscopoLocal;
@@ -1535,437 +1536,451 @@ yyreduce:
                                 (yyval.defvars)->prox = NULL;
                                 (yyval.defvars)->prim = NULL;
 }
-#line 1539 "grammar.tab.c" /* yacc.c:1646  */
+#line 1540 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 180 "grammar.y" /* yacc.c:1646  */
+#line 181 "grammar.y" /* yacc.c:1646  */
     {(yyval.cmdL) = NULL;}
-#line 1545 "grammar.tab.c" /* yacc.c:1646  */
+#line 1546 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 181 "grammar.y" /* yacc.c:1646  */
+#line 182 "grammar.y" /* yacc.c:1646  */
     {(yyval.cmdL) = (CMDL*)malloc(sizeof(CMDL));
                                                 (yyval.cmdL)->c = (yyvsp[-1].cmd);
                                                 (yyval.cmdL)->prox = (yyvsp[0].cmdL);
                                                }
-#line 1554 "grammar.tab.c" /* yacc.c:1646  */
+#line 1555 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 187 "grammar.y" /* yacc.c:1646  */
+#line 188 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                 (yyval.cmd)->tag = CMD_BLOCK;
                                 (yyval.cmd)->u.bloco = (yyvsp[0].bloco);
                               }
-#line 1563 "grammar.tab.c" /* yacc.c:1646  */
+#line 1564 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 191 "grammar.y" /* yacc.c:1646  */
+#line 192 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                            (yyval.cmd)->tag = CMD_PRINT;
                                            (yyval.cmd)->u.exp = (yyvsp[-1].exp);
                                         }
-#line 1572 "grammar.tab.c" /* yacc.c:1646  */
+#line 1573 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 195 "grammar.y" /* yacc.c:1646  */
+#line 196 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                                   (yyval.cmd)->tag = CMD_RETURN;
                                                   (yyval.cmd)->u.exp = (yyvsp[-1].exp);
                                                 }
-#line 1581 "grammar.tab.c" /* yacc.c:1646  */
+#line 1582 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 199 "grammar.y" /* yacc.c:1646  */
+#line 200 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                         (yyval.cmd)->tag = CMD_RETURNVOID;
                                       }
-#line 1589 "grammar.tab.c" /* yacc.c:1646  */
+#line 1590 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 202 "grammar.y" /* yacc.c:1646  */
+#line 203 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                                      (yyval.cmd)->tag = CMD_ATR;
                                                      (yyval.cmd)->u.atr.expvar = (yyvsp[-3].exp);
                                                      (yyval.cmd)->u.atr.exp = (yyvsp[-1].exp);
                                                    }
-#line 1599 "grammar.tab.c" /* yacc.c:1646  */
+#line 1600 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 207 "grammar.y" /* yacc.c:1646  */
+#line 208 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                                   (yyval.cmd)->tag = CMD_IF;
                                                   (yyval.cmd)->u.cmdif.exp = (yyvsp[-1].exp);
                                                   (yyval.cmd)->u.cmdif.bloco = (yyvsp[0].bloco);
                                                 }
-#line 1609 "grammar.tab.c" /* yacc.c:1646  */
+#line 1610 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 212 "grammar.y" /* yacc.c:1646  */
+#line 213 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                                                   (yyval.cmd)->tag = CMD_IFELSE;
                                                                   (yyval.cmd)->u.cmdifelse.exp = (yyvsp[-3].exp);
                                                                   (yyval.cmd)->u.cmdifelse.blocoif = (yyvsp[-2].bloco);
                                                                   (yyval.cmd)->u.cmdifelse.blocoelse = (yyvsp[0].bloco);
                                                                 }
-#line 1620 "grammar.tab.c" /* yacc.c:1646  */
+#line 1621 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 218 "grammar.y" /* yacc.c:1646  */
+#line 219 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                                          (yyval.cmd)->tag = CMD_WHILE;
                                                          (yyval.cmd)->u.cmdwhile.exp = (yyvsp[-1].exp);
                                                          (yyval.cmd)->u.cmdwhile.bloco = (yyvsp[0].bloco);
                                                        }
-#line 1630 "grammar.tab.c" /* yacc.c:1646  */
+#line 1631 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 223 "grammar.y" /* yacc.c:1646  */
+#line 224 "grammar.y" /* yacc.c:1646  */
     { (yyval.cmd) = (CMD*)malloc(sizeof(CMD));
                                       (yyval.cmd)->tag = CMD_CHAMADA;
                                       (yyval.cmd)->u.exp = (yyvsp[-1].exp);
                                     }
-#line 1639 "grammar.tab.c" /* yacc.c:1646  */
+#line 1640 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 229 "grammar.y" /* yacc.c:1646  */
+#line 230 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
                                  (yyval.exp)->tag = EXP_VAR;
                                  (yyval.exp)->u.expvar = (Var*)malloc(sizeof(Var));
                                  (yyval.exp)->u.expvar->id = (yyvsp[0].str_val);
+                                 (yyval.exp)->u.expvar->tipo = NULL;
                            }
-#line 1649 "grammar.tab.c" /* yacc.c:1646  */
+#line 1651 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 234 "grammar.y" /* yacc.c:1646  */
+#line 236 "grammar.y" /* yacc.c:1646  */
     {  (yyval.exp) = (Exp*)malloc(sizeof(Exp));
                                                             (yyval.exp)->tag = EXP_ACESSO;
                                                             (yyval.exp)->u.expacesso.expvar = (yyvsp[-3].exp);
                                                             (yyval.exp)->u.expacesso.expindex = (yyvsp[-1].exp);
                     }
-#line 1659 "grammar.tab.c" /* yacc.c:1646  */
+#line 1661 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 241 "grammar.y" /* yacc.c:1646  */
+#line 243 "grammar.y" /* yacc.c:1646  */
     {  (yyval.exp) = (Exp*)malloc(sizeof(Exp));
                                                 (yyval.exp)->tag = EXP_CHAMADA;
                                                 (yyval.exp)->u.expchamada.idFunc = (yyvsp[-3].str_val);
                                                 (yyval.exp)->u.expchamada.params = (yyvsp[-1].expl);
                                              }
-#line 1669 "grammar.tab.c" /* yacc.c:1646  */
+#line 1671 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 248 "grammar.y" /* yacc.c:1646  */
+#line 250 "grammar.y" /* yacc.c:1646  */
     {(yyval.expl) = NULL;}
-#line 1675 "grammar.tab.c" /* yacc.c:1646  */
+#line 1677 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 249 "grammar.y" /* yacc.c:1646  */
+#line 251 "grammar.y" /* yacc.c:1646  */
     { (yyval.expl) = (yyvsp[0].expl);}
-#line 1681 "grammar.tab.c" /* yacc.c:1646  */
+#line 1683 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 252 "grammar.y" /* yacc.c:1646  */
+#line 254 "grammar.y" /* yacc.c:1646  */
     { (yyval.expl) = (ExpL*)malloc(sizeof(ExpL));
                                     (yyval.expl)->e = (yyvsp[0].exp);
                                     (yyval.expl)->prox = NULL;
                                   }
-#line 1690 "grammar.tab.c" /* yacc.c:1646  */
+#line 1692 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 256 "grammar.y" /* yacc.c:1646  */
+#line 258 "grammar.y" /* yacc.c:1646  */
     {(yyval.expl) = (ExpL*)malloc(sizeof(ExpL));
                                                         (yyval.expl)->e = (yyvsp[-2].exp);
                                                         (yyval.expl)->prox = (yyvsp[0].expl);}
-#line 1698 "grammar.tab.c" /* yacc.c:1646  */
+#line 1700 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 261 "grammar.y" /* yacc.c:1646  */
+#line 263 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1704 "grammar.tab.c" /* yacc.c:1646  */
+#line 1706 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 264 "grammar.y" /* yacc.c:1646  */
+#line 266 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1710 "grammar.tab.c" /* yacc.c:1646  */
+#line 1712 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 265 "grammar.y" /* yacc.c:1646  */
+#line 267 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                (yyval.exp)->tag = EXP_OR;
+                                                (yyval.exp)->tag = EXP_BIN;
                                                 (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
                                                 (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                (yyval.exp)->u.expbin.opbin = opor;
                                               }
-#line 1720 "grammar.tab.c" /* yacc.c:1646  */
+#line 1723 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 272 "grammar.y" /* yacc.c:1646  */
+#line 275 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1726 "grammar.tab.c" /* yacc.c:1646  */
+#line 1729 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 273 "grammar.y" /* yacc.c:1646  */
+#line 276 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                (yyval.exp)->tag = EXP_AND;
+                                                (yyval.exp)->tag = EXP_BIN;
                                                 (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
                                                 (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                (yyval.exp)->u.expbin.opbin = opand;
                                               }
-#line 1736 "grammar.tab.c" /* yacc.c:1646  */
+#line 1740 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 280 "grammar.y" /* yacc.c:1646  */
+#line 284 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1742 "grammar.tab.c" /* yacc.c:1646  */
+#line 1746 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 281 "grammar.y" /* yacc.c:1646  */
+#line 285 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                    (yyval.exp)->tag = EXP_CMP;
-                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
-                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->tag = EXP_BIN;
+                                                    (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->u.expbin.opbin = equal;
                                                     }
-#line 1752 "grammar.tab.c" /* yacc.c:1646  */
+#line 1757 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 286 "grammar.y" /* yacc.c:1646  */
+#line 291 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                    (yyval.exp)->tag = EXP_CMP;
-                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
-                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->tag = EXP_BIN;
+                                                    (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->u.expbin.opbin = notequal;
                                                     }
-#line 1762 "grammar.tab.c" /* yacc.c:1646  */
+#line 1768 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 291 "grammar.y" /* yacc.c:1646  */
+#line 297 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                    (yyval.exp)->tag = EXP_CMP;
-                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
-                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->tag = EXP_BIN;
+                                                    (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->u.expbin.opbin = lessequal;
                                                     }
-#line 1772 "grammar.tab.c" /* yacc.c:1646  */
+#line 1779 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 296 "grammar.y" /* yacc.c:1646  */
+#line 303 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                    (yyval.exp)->tag = EXP_CMP;
-                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
-                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->tag = EXP_BIN;
+                                                    (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->u.expbin.opbin = greaterequal;
                                                     }
-#line 1782 "grammar.tab.c" /* yacc.c:1646  */
+#line 1790 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 301 "grammar.y" /* yacc.c:1646  */
+#line 309 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                    (yyval.exp)->tag = EXP_CMP;
-                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
-                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->tag = EXP_BIN;
+                                                    (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->u.expbin.opbin = less;
                                                     }
-#line 1792 "grammar.tab.c" /* yacc.c:1646  */
+#line 1801 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 306 "grammar.y" /* yacc.c:1646  */
+#line 315 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                    (yyval.exp)->tag = EXP_CMP;
-                                                    (yyval.exp)->u.expcmp.expesq = (yyvsp[-2].exp);
-                                                    (yyval.exp)->u.expcmp.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->tag = EXP_BIN;
+                                                    (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                    (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                    (yyval.exp)->u.expbin.opbin = greater;
                                                     }
-#line 1802 "grammar.tab.c" /* yacc.c:1646  */
+#line 1812 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 313 "grammar.y" /* yacc.c:1646  */
+#line 323 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1808 "grammar.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 55:
-#line 314 "grammar.y" /* yacc.c:1646  */
-    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                (yyval.exp)->tag = EXP_ADD;
-                                                (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
-                                                (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
-                                              }
 #line 1818 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
-  case 56:
-#line 319 "grammar.y" /* yacc.c:1646  */
+  case 55:
+#line 324 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                (yyval.exp)->tag = EXP_SUB;
+                                                (yyval.exp)->tag = EXP_BIN;
                                                 (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
                                                 (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                (yyval.exp)->u.expbin.opbin = opadd;
                                               }
-#line 1828 "grammar.tab.c" /* yacc.c:1646  */
+#line 1829 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 56:
+#line 330 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                (yyval.exp)->tag = EXP_BIN;
+                                                (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
+                                                (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                (yyval.exp)->u.expbin.opbin = opsub;
+                                              }
+#line 1840 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 326 "grammar.y" /* yacc.c:1646  */
+#line 338 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1834 "grammar.tab.c" /* yacc.c:1646  */
+#line 1846 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 327 "grammar.y" /* yacc.c:1646  */
+#line 339 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                  (yyval.exp)->tag = EXP_MULT;
+                                                  (yyval.exp)->tag = EXP_BIN;
                                                   (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
                                                   (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                  (yyval.exp)->u.expbin.opbin = opmult;
                                                 }
-#line 1844 "grammar.tab.c" /* yacc.c:1646  */
+#line 1857 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 332 "grammar.y" /* yacc.c:1646  */
+#line 345 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                                  (yyval.exp)->tag = EXP_DIV;
+                                                  (yyval.exp)->tag = EXP_BIN;
                                                   (yyval.exp)->u.expbin.expesq = (yyvsp[-2].exp);
                                                   (yyval.exp)->u.expbin.expdir = (yyvsp[0].exp);
+                                                  (yyval.exp)->u.expbin.opbin = opdiv;
                                                 }
-#line 1854 "grammar.tab.c" /* yacc.c:1646  */
+#line 1868 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 339 "grammar.y" /* yacc.c:1646  */
+#line 353 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[0].exp);}
-#line 1860 "grammar.tab.c" /* yacc.c:1646  */
+#line 1874 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 340 "grammar.y" /* yacc.c:1646  */
+#line 354 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
                                             (yyval.exp)->tag = EXP_UNARIA;
                                             (yyval.exp)->u.expunaria.exp = (yyvsp[0].exp);
+                                            (yyval.exp)->u.expunaria.opun = opmenos;
                                           }
-#line 1869 "grammar.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 62:
-#line 344 "grammar.y" /* yacc.c:1646  */
-    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                            (yyval.exp)->tag = EXP_UNARIA;
-                                            (yyval.exp)->u.expunaria.exp = (yyvsp[0].exp);
-                                          }
-#line 1878 "grammar.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 63:
-#line 351 "grammar.y" /* yacc.c:1646  */
-    {(yyval.exp) = (yyvsp[0].exp);}
 #line 1884 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
+  case 62:
+#line 359 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                            (yyval.exp)->tag = EXP_UNARIA;
+                                            (yyval.exp)->u.expunaria.exp = (yyvsp[0].exp);
+                                            (yyval.exp)->u.expunaria.opun = opnot;
+                                          }
+#line 1894 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 63:
+#line 367 "grammar.y" /* yacc.c:1646  */
+    {(yyval.exp) = (yyvsp[0].exp);}
+#line 1900 "grammar.tab.c" /* yacc.c:1646  */
+    break;
+
   case 64:
-#line 352 "grammar.y" /* yacc.c:1646  */
+#line 368 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
                                                     (yyval.exp)->tag = EXP_AS;
                                                     (yyval.exp)->u.expnewas.exp = (yyvsp[-2].exp);
                                                     (yyval.exp)->u.expnewas.tipo = (yyvsp[0].t);
                                                   }
-#line 1894 "grammar.tab.c" /* yacc.c:1646  */
+#line 1910 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 359 "grammar.y" /* yacc.c:1646  */
+#line 375 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
                                     (yyval.exp)->tag = EXP_CTE;
                                     (yyval.exp)->u.expcte = (yyvsp[0].cons);
                                   }
-#line 1903 "grammar.tab.c" /* yacc.c:1646  */
+#line 1919 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 363 "grammar.y" /* yacc.c:1646  */
+#line 379 "grammar.y" /* yacc.c:1646  */
     { (yyval.exp) = (yyvsp[0].exp);}
-#line 1909 "grammar.tab.c" /* yacc.c:1646  */
+#line 1925 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 364 "grammar.y" /* yacc.c:1646  */
+#line 380 "grammar.y" /* yacc.c:1646  */
     {(yyval.exp) = (yyvsp[-1].exp);}
-#line 1915 "grammar.tab.c" /* yacc.c:1646  */
+#line 1931 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 366 "grammar.y" /* yacc.c:1646  */
-    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-                                  (yyval.exp)->tag = EXP_CHAMADA;
-
-                    }
-#line 1924 "grammar.tab.c" /* yacc.c:1646  */
+#line 381 "grammar.y" /* yacc.c:1646  */
+    { (yyval.exp) = (yyvsp[0].exp);}
+#line 1937 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 69:
-#line 370 "grammar.y" /* yacc.c:1646  */
-    { (yyval.exp) = (Exp*)malloc(sizeof(Exp));
-
-                    }
-#line 1932 "grammar.tab.c" /* yacc.c:1646  */
+#line 382 "grammar.y" /* yacc.c:1646  */
+    {  (yyval.exp) = (Exp*)malloc(sizeof(Exp));
+                                                        (yyval.exp)->tag = EXP_NEW;
+                                                        (yyval.exp)->u.expnewas.tipo = (yyvsp[-3].t);
+                                                        (yyval.exp)->u.expnewas.exp = (yyvsp[-1].exp);
+                                                     }
+#line 1947 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 70:
-#line 375 "grammar.y" /* yacc.c:1646  */
+#line 389 "grammar.y" /* yacc.c:1646  */
     {  (yyval.cons) = (Constante*)malloc(sizeof(Constante));
                                   (yyval.cons)->tag = CDEC;
                                   (yyval.cons)->val.i = yylval.int_val;
                                }
-#line 1941 "grammar.tab.c" /* yacc.c:1646  */
+#line 1956 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 71:
-#line 379 "grammar.y" /* yacc.c:1646  */
+#line 393 "grammar.y" /* yacc.c:1646  */
     {  (yyval.cons) = (Constante*)malloc(sizeof(Constante));
                                    (yyval.cons)->tag = CREAL;
                                    (yyval.cons)->val.f = yylval.float_val;
                                 }
-#line 1950 "grammar.tab.c" /* yacc.c:1646  */
+#line 1965 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 72:
-#line 383 "grammar.y" /* yacc.c:1646  */
+#line 397 "grammar.y" /* yacc.c:1646  */
     {  (yyval.cons) = (Constante*)malloc(sizeof(Constante));
                                      (yyval.cons)->tag = CSTRING;
                                      (yyval.cons)->val.s = yylval.str_val;
                                   }
-#line 1959 "grammar.tab.c" /* yacc.c:1646  */
+#line 1974 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
   case 73:
-#line 389 "grammar.y" /* yacc.c:1646  */
+#line 403 "grammar.y" /* yacc.c:1646  */
     { (yyval.str_val) = yylval.str_val;                    }
-#line 1965 "grammar.tab.c" /* yacc.c:1646  */
+#line 1980 "grammar.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1969 "grammar.tab.c" /* yacc.c:1646  */
+#line 1984 "grammar.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2193,7 +2208,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 392 "grammar.y" /* yacc.c:1906  */
+#line 406 "grammar.y" /* yacc.c:1906  */
 
 
 void yyerror(const char *str) {
@@ -2206,5 +2221,6 @@ int yywrap(void) {
 
 int main(void) {
   yyparse();
+  print_tree(nodePrograma);
   return 0;
 }

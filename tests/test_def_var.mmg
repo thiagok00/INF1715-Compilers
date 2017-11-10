@@ -1,5 +1,4 @@
-funcao(): void {
-  myint : int;
-  myfloat : float;
-  sat : float;
-  }
+funcao(x : int, f : float): int {
+  x[10] = 5;
+  return;
+}

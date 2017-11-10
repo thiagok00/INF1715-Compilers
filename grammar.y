@@ -114,6 +114,7 @@ tipo:                   tipo_primitivo {  $$ = (Tipo*)malloc(sizeof(Tipo));
                                           }
                     |   tipo '[' ']'  {   $$ = (Tipo*)malloc(sizeof(Tipo));
                                           $$->tag = array;
+                                          $$->tipo_base = $1->tipo_base;
                                           $$->de = $1;
                                       }
                     ;
@@ -128,7 +129,7 @@ def_funcao:             ID '(' parametros ')' ':' tipo bloco {$$ = (DefFunc*)mal
                                                               $$->tiporet = $6;
                                                               $$->id = $1;
                                                               $$->params = $3;
-                                                              //$$->bloco = $7;
+                                                              $$->bloco = $7;
                                                              }
                     ;
 
@@ -150,11 +151,11 @@ parametro:              ID ':' tipo { $$ = (ParametroL*)malloc(sizeof(ParametroL
                     ;
 
 bloco:                  '{' lista_def_var lista_comandos '}'  {$$ = (Bloco*)malloc(sizeof(Bloco));
-                                                               if($2 != NULL) $$->declVars = $2->prim;
-                                                               else $$->declVars = $2;
-                                                               print_bloco($$);
-
-
+                                                               if($2 != NULL)
+                                                                  $$->declVars = $2->prim;
+                                                               else
+                                                                  $$->declVars = $2;
+                                                               $$->cmds = $3;
                                                               }
                     ;
 
@@ -230,6 +231,7 @@ exp_variavel:               ID { $$ = (Exp*)malloc(sizeof(Exp));
                                  $$->tag = EXP_VAR;
                                  $$->u.expvar = (Var*)malloc(sizeof(Var));
                                  $$->u.expvar->id = $1;
+                                 $$->u.expvar->tipo = NULL;
                            }
                     |   expressao_base '[' expressao ']' {  $$ = (Exp*)malloc(sizeof(Exp));
                                                             $$->tag = EXP_ACESSO;
@@ -263,76 +265,88 @@ expressao:              exp_or {$$ = $1;}
 
 exp_or:                 exp_and {$$ = $1;}
                     |   exp_or TK_OR exp_and  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_OR;
+                                                $$->tag = EXP_BIN;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
+                                                $$->u.expbin.opbin = opor;
                                               }
                     ;
 
 exp_and:                exp_cmp {$$ = $1;}
                     |   exp_and TK_AND exp_cmp  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_AND;
+                                                $$->tag = EXP_BIN;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
+                                                $$->u.expbin.opbin = opand;
                                               }
                     ;
 
 exp_cmp:                exp_add {$$ = $1;}
                     |   exp_cmp TK_EQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_CMP;
-                                                    $$->u.expcmp.expesq = $1;
-                                                    $$->u.expcmp.expdir = $3;
+                                                    $$->tag = EXP_BIN;
+                                                    $$->u.expbin.expesq = $1;
+                                                    $$->u.expbin.expdir = $3;
+                                                    $$->u.expbin.opbin = equal;
                                                     }
                     |   exp_cmp TK_NOTEQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_CMP;
-                                                    $$->u.expcmp.expesq = $1;
-                                                    $$->u.expcmp.expdir = $3;
+                                                    $$->tag = EXP_BIN;
+                                                    $$->u.expbin.expesq = $1;
+                                                    $$->u.expbin.expdir = $3;
+                                                    $$->u.expbin.opbin = notequal;
                                                     }
                     |   exp_cmp TK_LESSEQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_CMP;
-                                                    $$->u.expcmp.expesq = $1;
-                                                    $$->u.expcmp.expdir = $3;
+                                                    $$->tag = EXP_BIN;
+                                                    $$->u.expbin.expesq = $1;
+                                                    $$->u.expbin.expdir = $3;
+                                                    $$->u.expbin.opbin = lessequal;
                                                     }
                     |   exp_cmp TK_GREATEREQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_CMP;
-                                                    $$->u.expcmp.expesq = $1;
-                                                    $$->u.expcmp.expdir = $3;
+                                                    $$->tag = EXP_BIN;
+                                                    $$->u.expbin.expesq = $1;
+                                                    $$->u.expbin.expdir = $3;
+                                                    $$->u.expbin.opbin = greaterequal;
                                                     }
                     |   exp_cmp'<' exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_CMP;
-                                                    $$->u.expcmp.expesq = $1;
-                                                    $$->u.expcmp.expdir = $3;
+                                                    $$->tag = EXP_BIN;
+                                                    $$->u.expbin.expesq = $1;
+                                                    $$->u.expbin.expdir = $3;
+                                                    $$->u.expbin.opbin = less;
                                                     }
                     |   exp_cmp '>' exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_CMP;
-                                                    $$->u.expcmp.expesq = $1;
-                                                    $$->u.expcmp.expdir = $3;
+                                                    $$->tag = EXP_BIN;
+                                                    $$->u.expbin.expesq = $1;
+                                                    $$->u.expbin.expdir = $3;
+                                                    $$->u.expbin.opbin = greater;
                                                     }
                     ;
 
 exp_add:                exp_mult {$$ = $1;}
                     |   exp_add '+' exp_mult { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_ADD;
+                                                $$->tag = EXP_BIN;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
+                                                $$->u.expbin.opbin = opadd;
                                               }
                     |   exp_add '-' exp_mult { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_SUB;
+                                                $$->tag = EXP_BIN;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
+                                                $$->u.expbin.opbin = opsub;
                                               }
                     ;
 
 exp_mult:               exp_unaria {$$ = $1;}
                     |   exp_mult '*' exp_unaria { $$ = (Exp*)malloc(sizeof(Exp));
-                                                  $$->tag = EXP_MULT;
+                                                  $$->tag = EXP_BIN;
                                                   $$->u.expbin.expesq = $1;
                                                   $$->u.expbin.expdir = $3;
+                                                  $$->u.expbin.opbin = opmult;
                                                 }
                     |   exp_mult '/' exp_unaria { $$ = (Exp*)malloc(sizeof(Exp));
-                                                  $$->tag = EXP_DIV;
+                                                  $$->tag = EXP_BIN;
                                                   $$->u.expbin.expesq = $1;
                                                   $$->u.expbin.expdir = $3;
+                                                  $$->u.expbin.opbin = opdiv;
                                                 }
                     ;
 
@@ -340,10 +354,12 @@ exp_unaria:             exp_as {$$ = $1;}
                     |   '-'   exp_unaria  { $$ = (Exp*)malloc(sizeof(Exp));
                                             $$->tag = EXP_UNARIA;
                                             $$->u.expunaria.exp = $2;
+                                            $$->u.expunaria.opun = opmenos;
                                           }
                     |   '!'   exp_unaria  { $$ = (Exp*)malloc(sizeof(Exp));
                                             $$->tag = EXP_UNARIA;
                                             $$->u.expunaria.exp = $2;
+                                            $$->u.expunaria.opun = opnot;
                                           }
                     ;
 
@@ -362,14 +378,12 @@ expressao_base:         constante { $$ = (Exp*)malloc(sizeof(Exp));
                                   }
                     |   exp_variavel  { $$ = $1;}
                     |   '(' expressao ')' {$$ = $2;}
-
-                    |   chamada { $$ = (Exp*)malloc(sizeof(Exp));
-                                  $$->tag = EXP_CHAMADA;
-
-                    }
-                    |   TK_NEW tipo '[' expressao ']'{ $$ = (Exp*)malloc(sizeof(Exp));
-
-                    }
+                    |   chamada { $$ = $1;}
+                    |   TK_NEW tipo '[' expressao ']'{  $$ = (Exp*)malloc(sizeof(Exp));
+                                                        $$->tag = EXP_NEW;
+                                                        $$->u.expnewas.tipo = $2;
+                                                        $$->u.expnewas.exp = $4;
+                                                     }
                     ;
 
 constante:              TK_DEC {  $$ = (Constante*)malloc(sizeof(Constante));
@@ -401,5 +415,6 @@ int yywrap(void) {
 
 int main(void) {
   yyparse();
+  print_tree(nodePrograma);
   return 0;
 }
