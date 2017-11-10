@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "tabelaSimbolos.h"
 
 typedef enum SIM_TAG { SVar, SFunc, SParams } SIM_Tag;
@@ -102,8 +103,87 @@ static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo){
     return nv;
 }
 
-static void costura_expressao(Simbolo *s, Exp *e, int nivelEscopo){
+static void costura_variavel(Simbolo *s, Var *v, int nivelEscopo){
+    ParametroL *p;
+    while (s != NULL){
+      if (s->tag == SVar) {
+        if(strcmp(s->u.v->id,v->id) == 0) {
+          v->escopo = EscopoLocal;
+          v->u.def = s->u.v;
+          v->tipo = s->u.v->tipo;
+          break;
+        }
+      }
+      else if (s->tag == SParams) {
+        p = s->u.p;
+        while (p != NULL) {
+          if (strcmp(p->id,v->id) == 0){
+            v->escopo = EscopoFunc;
+            v->u.defp = p;
+            v->tipo = p->tipo;
+            break;
+          }
+          p = p->prox;
+        }
+      } /* fim else if */
+      s = s->ant;
+    }
+}
 
+static Simbolo* proc_id_func(Simbolo *s, const char *id) {
+
+  while (s != NULL) {
+    if (s->tag == SFunc) {
+      if (strcmp(s->u.f->id,id) == 0){
+        return s;
+      }
+    }
+    s = s->ant;
+  }
+  return NULL;
+}
+
+static Simbolo* costura_expressao(Simbolo *s, Exp *e, int nivelEscopo){
+  Simbolo *aux = NULL;
+  ExpL *explist = NULL;
+  if (e == NULL) return s;
+
+  switch (e->tag) {
+
+    case EXP_BIN:
+       s = costura_expressao(s, e->u.expbin.expesq,nivelEscopo);
+       s = costura_expressao(s, e->u.expbin.expdir,nivelEscopo);
+    break;
+    case EXP_UNARIA:
+      s = costura_expressao(s,e->u.expunaria.exp,nivelEscopo);
+    break;
+    case EXP_VAR:
+      costura_variavel(s,e->u.expvar,nivelEscopo);
+    break;
+    case EXP_ACESSO:
+      s = costura_expressao(s,e->u.expacesso.expvar,nivelEscopo);
+      s = costura_expressao(s,e->u.expacesso.expindex,nivelEscopo);
+    break;
+    case EXP_CHAMADA:
+      aux = proc_id_func(s,e->u.expchamada.idFunc);
+      if (aux != NULL) {
+        e->u.expchamada.def = aux->u.f;
+        e->tipo = aux->u.f->tiporet;
+      }
+      explist = e->u.expchamada.params;
+      while (explist != NULL) {
+        s = costura_expressao(s,explist->e,nivelEscopo);
+        explist = explist->prox;
+      }
+    break;
+    case EXP_AS:
+    case EXP_NEW:
+        s = costura_expressao(s,e->u.expnewas.exp,nivelEscopo);
+    break;
+    case EXP_CTE:
+    break;
+  }
+  return s;
 }
 
 static void costura_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
@@ -128,25 +208,25 @@ static void costura_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
         break;
         case CMD_ATR:
           costura_expressao(s,cmd->u.atr.expvar,nivelEscopo);
-          costura_expressao(s,cmd->u.atr.exp,nivelEscopo);
+          s = costura_expressao(s,cmd->u.atr.exp,nivelEscopo);
         break;
         case CMD_WHILE:
-          costura_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
+          s = costura_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
           costura_bloco(s,cmd->u.cmdwhile.bloco,nivelEscopo+1);
         break;
         case CMD_IF:
-          costura_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
+          s = costura_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
           costura_bloco(s,cmd->u.cmdif.bloco,nivelEscopo+1);
         break;
         case CMD_IFELSE:
-          costura_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
+          s = costura_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
           costura_bloco(s,cmd->u.cmdifelse.blocoif,nivelEscopo+1);
           costura_bloco(s,cmd->u.cmdifelse.blocoelse,nivelEscopo+1);
         break;
         case CMD_RETURN:
         case CMD_PRINT:
         case CMD_CHAMADA:
-          costura_expressao(s,cmd->u.exp,nivelEscopo);
+          s = costura_expressao(s,cmd->u.exp,nivelEscopo);
         break;
         default:
         break;

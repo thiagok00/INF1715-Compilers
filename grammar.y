@@ -228,6 +228,7 @@ comando:                bloco { $$ = (CMD*)malloc(sizeof(CMD));
                     |   chamada ';' { $$ = (CMD*)malloc(sizeof(CMD));
                                       $$->tag = CMD_CHAMADA;
                                       $$->u.exp = $1;
+
                                     }
                     ;
 
@@ -248,6 +249,7 @@ chamada:                ID '(' lista_exp ')' {  $$ = (Exp*)malloc(sizeof(Exp));
                                                 $$->tag = EXP_CHAMADA;
                                                 $$->u.expchamada.idFunc = $1;
                                                 $$->u.expchamada.params = $3;
+                                                $$->tipo = NULL;
                                              }
                     ;
 
@@ -419,8 +421,7 @@ int yywrap(void) {
 
 int main(void) {
   yyparse();
-  print_tree(nodePrograma);
   costura_arvore(nodePrograma);
-
+  print_tree(nodePrograma);
   return 0;
 }

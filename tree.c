@@ -10,8 +10,7 @@
 /*
 *  declarations
 */
-static void   print_padding(int nivel);
-static char*  strFormatoTipo(Base_TAG x);
+//static char*  strFormatoTipo(Base_TAG x);
 static char*  getStringTipo (Tipo *t);
 
 static void   print_variavel(Var *v, int nivel);
@@ -27,13 +26,13 @@ static void   print_defs(Definicao* d, int nivel);
 /*
 *  implementations
 */
-static void print_padding(int nivel) {
+/*static void print_padding(int nivel) {
     while (nivel) {
       printf("\t");
       nivel--;
     }
 }
-
+*/
 static char* strFormatoTipo(Base_TAG x) {
     switch (x){
       case 0: return "INT";
@@ -186,7 +185,10 @@ static void print_exp(Exp *e, int nivel) {
         case EXP_CHAMADA:
           auxparam = e->u.expchamada.params;
           nivelparams = nivel;
-          printf("%d [Exp Chamada] %s\n",nivel,e->u.expchamada.idFunc);
+          if (e->tipo == NULL)
+            printf("%d [Exp Chamada] %s\n",nivel,e->u.expchamada.idFunc);
+          else
+            printf("%d [Exp Chamada] %s : %s\n",nivel,e->u.expchamada.idFunc,getStringTipo(e->tipo));
           while (auxparam != NULL) {
             nivelparams++;
             print_exp(auxparam->e,nivel);

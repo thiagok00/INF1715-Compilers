@@ -33,7 +33,7 @@ typedef struct Tipo
 /*
 * Definicao Variavel
 */
-typedef enum EscopoTag { EscopoGlobal,EscopoLocal } EscopoTag;
+typedef enum EscopoTag { EscopoGlobal,EscopoLocal, EscopoFunc } EscopoTag;
 
 typedef struct DefVar
 {
@@ -100,8 +100,12 @@ typedef struct Var
 {
   Tipo *tipo;
 	const char *id;
-  // e o valor??
-	//DefVar* declaracao; pra costurar depois (?)
+
+	EscopoTag escopo;
+	union {
+  	DefVar* def;
+		ParametroL *defp;
+	}u;
 } Var;
 
 
@@ -120,7 +124,6 @@ typedef enum EXP_TAG {
 	EXP_AS
 } EXP_TAG;
 
-//TODO sera que precisa de parentesis? '(' exp ')'
 typedef struct Exp{
 	EXP_TAG tag;
 	Tipo *tipo;
@@ -143,7 +146,7 @@ typedef struct Exp{
 	  struct {
 	    struct ExpL *params;
 	    const char *idFunc;
-	    //DefFunc *decl; pra costurar depois(?)
+	    DefFunc *def;
 	  } expchamada;
 		struct {
 			struct Exp *expvar, *expindex;
