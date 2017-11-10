@@ -5,6 +5,10 @@
   #include "tree.h"
   #define tree_h
   #endif
+  #if !defined(tabelaSimbolos_h)
+  #include "tabelaSimbolos.h"
+  #define tabelaSimbolos_h
+  #endif
 }
 
 %code {
@@ -400,7 +404,7 @@ constante:              TK_DEC {  $$ = (Constante*)malloc(sizeof(Constante));
                                   }
                     ;
 
-ID: TK_ID           { $$ = yylval.str_val;                    }
+ID: TK_ID           { $$ = yylval.str_val; }
                     ;
 
 %%
@@ -416,5 +420,7 @@ int yywrap(void) {
 int main(void) {
   yyparse();
   print_tree(nodePrograma);
+  costura_arvore(nodePrograma);
+
   return 0;
 }

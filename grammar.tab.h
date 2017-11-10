@@ -48,8 +48,12 @@ extern int yydebug;
   #include "tree.h"
   #define tree_h
   #endif
+  #if !defined(tabelaSimbolos_h)
+  #include "tabelaSimbolos.h"
+  #define tabelaSimbolos_h
+  #endif
 
-#line 53 "grammar.tab.h" /* yacc.c:1909  */
+#line 57 "grammar.tab.h" /* yacc.c:1909  */
 
 /* Token type.  */
 #ifndef YYTOKENTYPE
@@ -84,7 +88,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 22 "grammar.y" /* yacc.c:1909  */
+#line 26 "grammar.y" /* yacc.c:1909  */
 
   int int_val;
   char *str_val;
@@ -105,7 +109,7 @@ union YYSTYPE
   ExpL* expl;
 
 
-#line 109 "grammar.tab.h" /* yacc.c:1909  */
+#line 113 "grammar.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

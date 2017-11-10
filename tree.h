@@ -123,6 +123,7 @@ typedef enum EXP_TAG {
 //TODO sera que precisa de parentesis? '(' exp ')'
 typedef struct Exp{
 	EXP_TAG tag;
+	Tipo *tipo;
 	union {
 	    Var *expvar;
 	    Constante *expcte;

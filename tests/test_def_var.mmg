@@ -1,4 +1,6 @@
-funcao(x : int, f : float): int {
-  x[10] = 5;
-  return;
+global1 : int;
+funcao1(x : int, f : float): int {
+  myint : int;
+  myarray : int[];
 }
+global2 : float;
