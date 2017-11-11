@@ -22,7 +22,7 @@ typedef struct Constante
 */
 
 typedef enum Tipo_TAG { base, array} Tipo_TAG;
-typedef enum Base_TAG {bInt, bFloat, bChar, bVoid} Base_TAG;
+typedef enum Base_TAG {bVoid, bChar, bInt, bFloat} Base_TAG;
 typedef struct Tipo
 {
 	Tipo_TAG tag;
@@ -207,5 +207,5 @@ typedef struct CMDL
 	struct CMDL* prox;
 } CMDL ;
 
-
+char*  getStringTipo (Tipo *t);
 void print_tree (Programa *p);

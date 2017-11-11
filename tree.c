@@ -11,7 +11,7 @@
 *  declarations
 */
 //static char*  strFormatoTipo(Base_TAG x);
-static char*  getStringTipo (Tipo *t);
+static char*  getStringEscopo(EscopoTag escopo);
 
 static void   print_variavel(Var *v, int nivel);
 static void   print_constante(Constante *c, int nivel);
@@ -35,15 +35,15 @@ static void   print_defs(Definicao* d, int nivel);
 */
 static char* strFormatoTipo(Base_TAG x) {
     switch (x){
-      case 0: return "INT";
-      case 1: return "FLOAT";
-      case 2: return "CHAR";
-      case 3: return "VOID";
-      default: return "ERROTIPO";
+      case bInt: return "INT";
+      case bFloat: return "FLOAT";
+      case bChar: return "CHAR";
+      case bVoid: return "VOID";
+      default: return "TIPOERRADO";
     }
 }
 
-static char* getStringTipo (Tipo *t) {
+char* getStringTipo (Tipo *t) {
 
     Tipo *aux = t;
     char *strbase = strFormatoTipo(t->tipo_base);
@@ -71,9 +71,21 @@ static char* getStringTipo (Tipo *t) {
     return str;
 }
 
+static char* getStringEscopo(EscopoTag escopo) {
+  switch (escopo) {
+    case EscopoGlobal:
+      return "Global";
+    case EscopoLocal:
+      return "Local";
+    case EscopoFunc:
+      return "EscopoFunc";
+  }
+  return "[Erro Escopo]";
+}
+
 static void print_constante(Constante *c,int nivel) {
    if (c == NULL) return;
-   printf("%d [CONSTANTE] ",nivel);
+   printf("%d\t [CONSTANTE] ",nivel);
    switch (c->tag) {
      case CDEC:
         printf("%d",c->val.i);
@@ -93,10 +105,10 @@ static void print_variavel(Var* v, int nivel) {
 
   if (v->tipo == NULL) {
     //ainda nao costurado
-    printf("%d [Variavel] %s\n",nivel,v->id);
+    printf("%d\t [Variavel] %s\n",nivel,v->id);
   }
   else {
-    printf("%d [Variavel] %s : %s\n",nivel,v->id,getStringTipo(v->tipo));
+    printf("%d\t [Variavel %s] %s : %s\n",nivel,getStringEscopo(v->escopo),v->id,getStringTipo(v->tipo));
   }
 }
 
@@ -104,10 +116,10 @@ static void print_exp_unaria(Exp *e, int nivel){
   if (e == NULL || e->tag != EXP_UNARIA) return;
   switch(e->u.expunaria.opun){
       case opnot:
-        printf("%d [EXP NOT]",nivel);
+        printf("%d\t [EXP NOT]",nivel);
       break;
       case opmenos:
-        printf("%d [EXP MENOS]",nivel);
+        printf("%d\t [EXP MENOS]",nivel);
       break;
   }
   print_exp(e->u.expunaria.exp,nivel+1);
@@ -118,40 +130,40 @@ static void print_exp_binaria(Exp *e, int nivel){
   switch(e->u.expbin.opbin){
 
     case opadd:
-      printf("%d [EXP ADD]\n",nivel);
+      printf("%d\t [EXP ADD : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case opsub:
-      printf("%d [EXP SUB]\n",nivel);
+      printf("%d\t [EXP SUB : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case opmult:
-      printf("%d [EXP MULT]\n",nivel);
+      printf("%d\t [EXP MULT : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case opdiv:
-      printf("%d [EXP DIV]\n",nivel);
+      printf("%d\t [EXP DIV : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case opand:
-      printf("%d [EXP AND]\n",nivel);
+      printf("%d\t [EXP AND : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case opor:
-      printf("%d [EXP OR]\n",nivel);
+      printf("%d\t [EXP OR : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case equal:
-      printf("%d [EXP EQUAL]\n",nivel);
+      printf("%d\t [EXP EQUAL : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case notequal:
-      printf("%d [EXP NOT EQUAL]\n",nivel);
+      printf("%d\t [EXP NOT EQUAL : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case less:
-      printf("%d [EXP LESS]\n",nivel);
+      printf("%d\t [EXP LESS : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case greater:
-      printf("%d [EXP GREATER]\n",nivel);
+      printf("%d\t [EXP GREATER : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case lessequal:
-      printf("%d [EXP LESS EQUAL]\n",nivel);
+      printf("%d\t [EXP LESS EQUAL : %s]\n",nivel, getStringTipo(e->tipo));
     break;
     case greaterequal:
-      printf("%d [EXP GREATER EQUAL]\n",nivel);
+      printf("%d\t [EXP GREATER EQUAL : %s]\n",nivel, getStringTipo(e->tipo));
     break;
   }
    print_exp(e->u.expbin.expesq,nivel+1);
@@ -170,15 +182,15 @@ static void print_exp(Exp *e, int nivel) {
           print_exp_unaria(e,nivel);
         break;
         case EXP_CTE:
-          printf("%d [Exp Constante]\n",nivel);
+          printf("%d\t [Exp Constante : %s]\n",nivel, getStringTipo(e->tipo));
           print_constante(e->u.expcte,nivel+1);
         break;
         case EXP_VAR:
-          printf("%d [Exp Variavel]\n",nivel);
+          printf("%d\t [Exp Variavel : %s]\n",nivel,getStringTipo(e->tipo));
           print_variavel(e->u.expvar,nivel+1);
         break;
         case EXP_ACESSO:
-          printf("%d [Exp Acesso]\n",nivel);
+          printf("%d\t [Exp Acesso : %s]\n",nivel, getStringTipo(e->tipo));
           print_exp(e->u.expacesso.expvar,nivel+1);
           print_exp(e->u.expacesso.expindex,nivel+1);
         break;
@@ -186,9 +198,9 @@ static void print_exp(Exp *e, int nivel) {
           auxparam = e->u.expchamada.params;
           nivelparams = nivel;
           if (e->tipo == NULL)
-            printf("%d [Exp Chamada] %s\n",nivel,e->u.expchamada.idFunc);
+            printf("%d\t [Exp Chamada : %s] %s\n",nivel, getStringTipo(e->tipo), e->u.expchamada.idFunc);
           else
-            printf("%d [Exp Chamada] %s : %s\n",nivel,e->u.expchamada.idFunc,getStringTipo(e->tipo));
+            printf("%d\t [Exp Chamada : %s] %s\n",nivel, getStringTipo(e->tipo),e->u.expchamada.idFunc);
           while (auxparam != NULL) {
             nivelparams++;
             print_exp(auxparam->e,nivel);
@@ -196,14 +208,14 @@ static void print_exp(Exp *e, int nivel) {
           }
         break;
         case EXP_NEW:
-          printf("%d [Exp New]\n",nivel);
+          printf("%d [Exp\t New : %s]\n",nivel, getStringTipo(e->tipo));
           print_exp(e->u.expnewas.exp,nivel+1);
-          printf("%d [Tipo] %s\n",nivel+1,getStringTipo(e->u.expnewas.tipo));
+          printf("%d\t [Tipo] %s\n",nivel+1,getStringTipo(e->u.expnewas.tipo));
         break;
         case EXP_AS:
-          printf("%d [Exp As]\n",nivel);
+          printf("%d\t [Exp As : %s]\n",nivel, getStringTipo(e->tipo));
           print_exp(e->u.expnewas.exp,nivel+1);
-          printf("%d [Tipo] %s\n",nivel+1,getStringTipo(e->u.expnewas.tipo));
+          printf("%d\t [Tipo : %s]\n",nivel+1,getStringTipo(e->u.expnewas.tipo));
         break;
         default:
           printf("EXP N RECONHECIDA\n   ");
@@ -216,47 +228,47 @@ static void print_cmd(CMD *c,int nivel) {
     switch (c->tag) {
 
       case CMD_ATR:
-        printf("%d [CMD ATRIBUIÇAO]\n",nivel);
+        printf("%d\t [CMD ATRIBUIÇAO]\n",nivel);
         print_exp(c->u.atr.expvar,nivel+1);
         print_exp(c->u.atr.exp,nivel+1);
       break;
       case CMD_WHILE:
-        printf("%d [CMD WHILE]\n",nivel);
+        printf("%d\t [CMD WHILE]\n",nivel);
         print_exp(c->u.cmdwhile.exp,nivel+1);
         print_bloco(c->u.cmdwhile.bloco,nivel+1);
       break;
       case CMD_IF:
-        printf("%d [CMD IF]\n",nivel);
+        printf("%d\t [CMD IF]\n",nivel);
         print_exp(c->u.cmdif.exp,nivel+1);
         print_bloco(c->u.cmdif.bloco,nivel+1);
       break;
       case CMD_IFELSE:
-        printf("%d [CMD IF ELSE]\n",nivel);
+        printf("%d\t [CMD IF ELSE]\n",nivel);
         print_exp(c->u.cmdifelse.exp,nivel+1);
         print_bloco(c->u.cmdifelse.blocoif,nivel+1);
         print_bloco(c->u.cmdifelse.blocoelse,nivel+1);
       break;
       case CMD_RETURN:
-        printf("%d [CMD RETURN]\n",nivel);
+        printf("%d\t [CMD RETURN]\n",nivel);
         print_exp(c->u.exp,nivel+1);
       break;
       case CMD_RETURNVOID:
-        printf("%d [CMD RETURN VOID]\n",nivel);
+        printf("%d\t [CMD RETURN VOID]\n",nivel);
       break;
       case CMD_CHAMADA:
-        printf("%d [CMD CHAMADA]\n",nivel);
+        printf("%d\t [CMD CHAMADA]\n",nivel);
         print_exp(c->u.exp,nivel+1);
       break;
       case CMD_BLOCK:
-        printf("%d [CMD BLOCK]\n",nivel);
+        printf("%d\t [CMD BLOCK]\n",nivel);
         print_bloco(c->u.bloco,nivel+1);
       break;
       case CMD_PRINT:
-        printf("%d [CMD PRINT]\n",nivel);
+        printf("%d\t [CMD PRINT]\n",nivel);
         print_exp(c->u.exp,nivel+1);
       break;
       case CMD_SKIP:
-        printf("%d [CMD SKIP]\n",nivel);
+        printf("%d\t [CMD SKIP]\n",nivel);
       break;
       default:
         printf("TAG CMD ERRADO");
@@ -270,10 +282,10 @@ static void print_bloco (Bloco *b, int nivel) {
     int nivelaux = nivel;
 
     if (b == NULL) return;
-    printf ("%d [Bloco]\n",nivel);
+    printf ("%d\t [Bloco]\n",nivel);
     while (aux != NULL){
       nivelaux++;
-      printf("%d [Def Var]:  %s %s\n",nivelaux,aux->v->id,getStringTipo(aux->v->tipo));
+      printf("%d\t [Def Var] %s : %s\n",nivelaux,aux->v->id,getStringTipo(aux->v->tipo));
       aux = aux->prox;
     }
     nivelaux = nivel;
@@ -290,9 +302,9 @@ static void print_defvar(DefVar * dvar,int nivel) {
 
     char *tipostr = getStringTipo(dvar->tipo);
     if(dvar->escopo == 0 ) //Global def
-      printf("%d [Def Variavel Global] %s : %s\n",nivel,dvar->id,tipostr);
+      printf("%d\t [Def Variavel Global] %s : %s\n",nivel,dvar->id,tipostr);
     else //EscopoLocal
-      printf("%d [Def Variavel Local] %s : %s\n",nivel,dvar->id,tipostr);
+      printf("%d\t [Def Variavel Local] %s : %s\n",nivel,dvar->id,tipostr);
 }
 
 static void print_deffunc(DefFunc * dfunc,int nivel) {
@@ -302,10 +314,10 @@ static void print_deffunc(DefFunc * dfunc,int nivel) {
     int parametroCount = 0;
     if(dfunc == NULL) return;
     tiporetstr = getStringTipo(dfunc->tiporet);
-    printf("%d [Def Funcao] %s : %s \n",nivel,dfunc->id,tiporetstr);
+    printf("%d\t [Def Funcao] %s : %s \n",nivel,dfunc->id,tiporetstr);
     while ( aux != NULL) {
       char *tipoparam = getStringTipo(aux->tipo);
-      printf("%d [Parametro %d] %s : %s\n",nivel,parametroCount+1,aux->id,tipoparam);
+      printf("%d\t [Parametro %d] %s : %s\n",nivel,parametroCount+1,aux->id,tipoparam);
       parametroCount++;
       aux = aux->prox;
     }
@@ -315,7 +327,7 @@ static void print_deffunc(DefFunc * dfunc,int nivel) {
 static void print_defs(Definicao* d, int nivel) {
     Definicao *aux = d;
     while (aux != NULL) {
-      printf("%d [Definicao]\n",nivel);
+      printf("%d\t [Definicao]\n",nivel);
       if(aux->tag == DVar){
           print_defvar(aux->u.v,nivel+1);
       }
@@ -330,7 +342,8 @@ static void print_defs(Definicao* d, int nivel) {
 void print_tree (Programa *p) {
   int nivel = 0;
   if (p != NULL){
-    printf("%d [Programa]\n",nivel);
+    printf("Nivel\t No\n");
+    printf("%d\t [Programa]\n",nivel);
     print_defs(p->defs,nivel+1);
   }
   else
