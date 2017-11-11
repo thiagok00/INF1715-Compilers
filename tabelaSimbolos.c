@@ -19,6 +19,17 @@ typedef struct simbolo
 } Simbolo;
 
 static Simbolo * destroi_simbolo_final(Simbolo *s);
+static Simbolo* cria_no_final(Simbolo *s, int nivelEscopo);
+static Simbolo* cria_no_var(Simbolo *s, DefVar *v, int nivelEscopo);
+static Simbolo* cria_no_func(Simbolo *s, DefFunc *f, int nivelEscopo);
+static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo);
+static Simbolo* proc_id_func(Simbolo *s, const char *id);
+
+
+static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo);
+static Simbolo* tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo);
+static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo);
+static void tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo);
 
 //para debug apenas
 static void print_simbolos(Simbolo *s);
@@ -84,26 +95,26 @@ static Simbolo* cria_no_final (Simbolo *s, int nivelEscopo) {
     return nv;
 }
 
-static Simbolo* cria_no_var(Simbolo *s, DefVar *v, int nivelEscopo){
+static Simbolo* cria_no_var(Simbolo *s, DefVar *v, int nivelEscopo) {
     Simbolo *nv = cria_no_final(s,nivelEscopo);
     nv->tag = SVar;
     nv->u.v = v;
     return nv;
 }
-static Simbolo* cria_no_func(Simbolo *s, DefFunc *f, int nivelEscopo){
+static Simbolo* cria_no_func(Simbolo *s, DefFunc *f, int nivelEscopo) {
     Simbolo *nv = cria_no_final(s,nivelEscopo);
     nv->tag = SFunc;
     nv->u.f = f;
     return nv;
 }
-static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo){
+static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo) {
     Simbolo *nv = cria_no_final(s,nivelEscopo);
     nv->tag = SParams;
     nv->u.p = p;
     return nv;
 }
 
-static void costura_variavel(Simbolo *s, Var *v, int nivelEscopo){
+static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo) {
     ParametroL *p;
     while (s != NULL){
       if (s->tag == SVar) {
@@ -111,7 +122,11 @@ static void costura_variavel(Simbolo *s, Var *v, int nivelEscopo){
           v->escopo = EscopoLocal;
           v->u.def = s->u.v;
           v->tipo = s->u.v->tipo;
-          break;
+          if(v->tipo->tipo_base == bVoid) {
+            printf("[Erro] %s nao pode ser declarada com tipo void\n",v->id);
+            exit(1);
+          }
+          return;
         }
       }
       else if (s->tag == SParams) {
@@ -121,13 +136,19 @@ static void costura_variavel(Simbolo *s, Var *v, int nivelEscopo){
             v->escopo = EscopoFunc;
             v->u.defp = p;
             v->tipo = p->tipo;
-            break;
+            if(v->tipo->tipo_base == bVoid) {
+              printf("[Erro] %s nao pode ser declarada com tipo void\n",v->id);
+              exit(1);
+            }
+            return;
           }
           p = p->prox;
         }
       } /* fim else if */
       s = s->ant;
     }
+    printf("[Erro] variavel %s nao declarada\n",v->id);
+    exit(1);
 }
 
 static Simbolo* proc_id_func(Simbolo *s, const char *id) {
@@ -143,7 +164,7 @@ static Simbolo* proc_id_func(Simbolo *s, const char *id) {
   return NULL;
 }
 
-static Simbolo* costura_expressao(Simbolo *s, Exp *e, int nivelEscopo){
+static Simbolo* tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
   Simbolo *aux = NULL;
   ExpL *explist = NULL;
   if (e == NULL) return s;
@@ -151,18 +172,18 @@ static Simbolo* costura_expressao(Simbolo *s, Exp *e, int nivelEscopo){
   switch (e->tag) {
 
     case EXP_BIN:
-       s = costura_expressao(s, e->u.expbin.expesq,nivelEscopo);
-       s = costura_expressao(s, e->u.expbin.expdir,nivelEscopo);
+       s = tipa_expressao(s, e->u.expbin.expesq,nivelEscopo);
+       s = tipa_expressao(s, e->u.expbin.expdir,nivelEscopo);
     break;
     case EXP_UNARIA:
-      s = costura_expressao(s,e->u.expunaria.exp,nivelEscopo);
+      s = tipa_expressao(s,e->u.expunaria.exp,nivelEscopo);
     break;
     case EXP_VAR:
-      costura_variavel(s,e->u.expvar,nivelEscopo);
+      tipa_variavel(s,e->u.expvar,nivelEscopo);
     break;
     case EXP_ACESSO:
-      s = costura_expressao(s,e->u.expacesso.expvar,nivelEscopo);
-      s = costura_expressao(s,e->u.expacesso.expindex,nivelEscopo);
+      s = tipa_expressao(s,e->u.expacesso.expvar,nivelEscopo);
+      s = tipa_expressao(s,e->u.expacesso.expindex,nivelEscopo);
     break;
     case EXP_CHAMADA:
       aux = proc_id_func(s,e->u.expchamada.idFunc);
@@ -170,15 +191,19 @@ static Simbolo* costura_expressao(Simbolo *s, Exp *e, int nivelEscopo){
         e->u.expchamada.def = aux->u.f;
         e->tipo = aux->u.f->tiporet;
       }
+      else {
+        printf("[Erro] funcao %s nao declarada\n",e->u.expchamada.idFunc);
+        exit(1);
+      }
       explist = e->u.expchamada.params;
       while (explist != NULL) {
-        s = costura_expressao(s,explist->e,nivelEscopo);
+        s = tipa_expressao(s,explist->e,nivelEscopo);
         explist = explist->prox;
       }
     break;
     case EXP_AS:
     case EXP_NEW:
-        s = costura_expressao(s,e->u.expnewas.exp,nivelEscopo);
+        s = tipa_expressao(s,e->u.expnewas.exp,nivelEscopo);
     break;
     case EXP_CTE:
     break;
@@ -186,7 +211,39 @@ static Simbolo* costura_expressao(Simbolo *s, Exp *e, int nivelEscopo){
   return s;
 }
 
-static void costura_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
+static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo) {
+  switch (cmd->tag) {
+    case CMD_BLOCK:
+      tipa_bloco(s,cmd->u.bloco,nivelEscopo+1);
+    break;
+    case CMD_ATR:
+      tipa_expressao(s,cmd->u.atr.expvar,nivelEscopo);
+      s = tipa_expressao(s,cmd->u.atr.exp,nivelEscopo);
+    break;
+    case CMD_WHILE:
+      s = tipa_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
+      tipa_bloco(s,cmd->u.cmdwhile.bloco,nivelEscopo+1);
+    break;
+    case CMD_IF:
+      s = tipa_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
+      tipa_bloco(s,cmd->u.cmdif.bloco,nivelEscopo+1);
+    break;
+    case CMD_IFELSE:
+      s = tipa_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
+      tipa_bloco(s,cmd->u.cmdifelse.blocoif,nivelEscopo+1);
+      tipa_bloco(s,cmd->u.cmdifelse.blocoelse,nivelEscopo+1);
+    break;
+    case CMD_RETURN:
+    case CMD_PRINT:
+    case CMD_CHAMADA:
+      s = tipa_expressao(s,cmd->u.exp,nivelEscopo);
+    break;
+    default:
+    break;
+  }
+
+}
+static void tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
 
     DefVarL *auxvars;
     CMDL *auxcmds;
@@ -202,35 +259,7 @@ static void costura_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
     auxcmds = b->cmds;
     while(auxcmds != NULL) {
       CMD *cmd = auxcmds->c;
-      switch (cmd->tag) {
-        case CMD_BLOCK:
-          costura_bloco(s,cmd->u.bloco,nivelEscopo+1);
-        break;
-        case CMD_ATR:
-          costura_expressao(s,cmd->u.atr.expvar,nivelEscopo);
-          s = costura_expressao(s,cmd->u.atr.exp,nivelEscopo);
-        break;
-        case CMD_WHILE:
-          s = costura_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
-          costura_bloco(s,cmd->u.cmdwhile.bloco,nivelEscopo+1);
-        break;
-        case CMD_IF:
-          s = costura_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
-          costura_bloco(s,cmd->u.cmdif.bloco,nivelEscopo+1);
-        break;
-        case CMD_IFELSE:
-          s = costura_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
-          costura_bloco(s,cmd->u.cmdifelse.blocoif,nivelEscopo+1);
-          costura_bloco(s,cmd->u.cmdifelse.blocoelse,nivelEscopo+1);
-        break;
-        case CMD_RETURN:
-        case CMD_PRINT:
-        case CMD_CHAMADA:
-          s = costura_expressao(s,cmd->u.exp,nivelEscopo);
-        break;
-        default:
-        break;
-      }
+      tipa_comando(s,cmd,nivelEscopo);
       auxcmds = auxcmds->prox;
     }
 
@@ -243,7 +272,7 @@ static void costura_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
 }
 
 
-void costura_arvore(Programa *p) {
+void tipa_arvore(Programa *p) {
     Definicao *auxdef;
     Simbolo *s = NULL;
     int nivelEscopo = 0;
@@ -264,7 +293,7 @@ void costura_arvore(Programa *p) {
         if (auxdef->tag == DFunc) {
           s = cria_no_func(s,auxdef->u.f,nivelEscopo);
           s = cria_no_param(s,auxdef->u.f->params,nivelEscopo+1);
-          costura_bloco(s,auxdef->u.f->bloco,nivelEscopo+1);
+          tipa_bloco(s,auxdef->u.f->bloco,nivelEscopo+1);
         }
         auxdef = auxdef->prox;
     }

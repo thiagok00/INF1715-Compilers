@@ -1,5 +1,5 @@
 global1 : int;
-funcao1(param1 : float): int {
+funcao1(param1 : void): int {
   local1 : int;
   global1 = param1 + funcao1(2);
 }

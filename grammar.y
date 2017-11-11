@@ -421,7 +421,7 @@ int yywrap(void) {
 
 int main(void) {
   yyparse();
-  costura_arvore(nodePrograma);
+  tipa_arvore(nodePrograma);
   print_tree(nodePrograma);
   return 0;
 }

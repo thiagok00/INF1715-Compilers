@@ -5,4 +5,4 @@
 
 
 
-void costura_arvore(Programa *p);
+void tipa_arvore(Programa *p);
