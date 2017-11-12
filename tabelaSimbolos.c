@@ -23,21 +23,37 @@ static Simbolo* cria_no_final(Simbolo *s, int nivelEscopo);
 static Simbolo* cria_no_var(Simbolo *s, DefVar *v, int nivelEscopo);
 static Simbolo* cria_no_func(Simbolo *s, DefFunc *f, int nivelEscopo);
 static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo);
-static Simbolo* proc_id_func(Simbolo *s, const char *id);
-static int cmp_tipo_base(Tipo *t1, Tipo *t2);
+static Simbolo* proc_no_func(Simbolo *s, const char *id);
 
-int verifica_tipo(Tipo *t, Base_TAG base);
+
+static int verifica_tipo(Tipo *t, Base_TAG base);
+static int cmp_tipo_base(Tipo *t1, Tipo *t2);
+static int cmp_tipo_array(Tipo *t1, Tipo *t2);
 static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo);
+static Exp* promove_tipo(Exp *e, Base_TAG tipo_base);
+
+
+static Exp* promove_tipo(Exp *e, Base_TAG tipo_base);
 static void tipa_expvar(Simbolo *s, Exp *e, int nivelEscopo);
-static void tipa_expconstante (Exp *e);
-static void tipa_expnew (Exp *e);
-static Simbolo* tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo);
+static void tipa_expchamada(Simbolo *s,Exp *e, int nivelEscopo);
+static void tipa_expacesso(Simbolo *s,Exp *e, int nivelEscopo);
+static void tipa_expconstante(Simbolo *s, Exp *e, int nivelEscopo);
+static void tipa_expas(Simbolo *s, Exp *e, int nivelEscopo);
+static void tipa_expnew(Simbolo *s, Exp *e, int nivelEscopo);
+static void tipa_expbin(Simbolo*s, Exp *e, int nivelEscopo);
+static void tipa_expunaria(Simbolo *s, Exp *e, int nivelEscopo);
+static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo);
+
 static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo);
+
 static Simbolo* tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo);
 
 //para debug apenas, printa estrutura auxilar usada para costurar a arvore
 static void print_simbolos(Simbolo *s);
 
+/*
+* implementations
+*/
 
 static void print_simbolos(Simbolo *s) {
     if (s == NULL) return;
@@ -65,18 +81,7 @@ static void print_simbolos(Simbolo *s) {
     printf("\n");
 }
 
-/*
-*  retorn a -1 se o t1 é menos expressivo -2 se é mais expressivo e 0 se são iguais
-*/
-static int cmp_tipo_base(Tipo *t1, Tipo *t2) {
-    if(t1->tipo_base < t2->tipo_base)
-      return -1;
-    else if (t1->tipo_base > t2->tipo_base)
-      return 1;
-    return 0;
-}
-
-static Simbolo * destroi_simbolo_final(Simbolo *s){
+static Simbolo * destroi_simbolo_final(Simbolo *s) {
   Simbolo *aux = s;
   if (s->ant == NULL) {
     s = NULL;
@@ -125,10 +130,16 @@ static Simbolo* cria_no_var(Simbolo *s, DefVar *v, int nivelEscopo) {
         ParametroL *p = aux->u.p;
         while(p != NULL) {
           if(strcmp(p->id, v->id) == 0) {
-            printf("[Erro] Redefinicao da variavel %s\n",v->id);
+            printf("[Erro] Redefinicao da variavel \"%s\"\n",v->id);
             exit(1);
           }
           p = p->prox;
+        }
+      }
+      else if (aux->tag == SFunc) {
+        if (strcmp(aux->u.f->id, v->id) == 0) {
+          printf("[Erro] Redefinicao de \"%s\" para um simbolo diferente\n",v->id);
+          exit(1);
         }
       }
       aux = aux->ant;
@@ -139,12 +150,31 @@ static Simbolo* cria_no_var(Simbolo *s, DefVar *v, int nivelEscopo) {
     nv->u.v = v;
     return nv;
 }
+
 static Simbolo* cria_no_func(Simbolo *s, DefFunc *f, int nivelEscopo) {
-    Simbolo *nv = cria_no_final(s,nivelEscopo);
+    Simbolo *aux,*nv;
+    aux = s;
+    while(aux != NULL /*&& aux->escopo == nivelEscopo*/) {
+        if (aux->tag == SVar) {
+            if (strcmp(aux->u.v->id, f->id) == 0) {
+              printf("[Erro] Redefinicao de \"%s\" para um simbolo diferente\n",f->id);
+              exit(1);
+            }
+        }
+        else if (aux->tag == SFunc) {
+          if (strcmp(aux->u.f->id, f->id) == 0) {
+              printf("[Erro] Redefinicao da funcao \"%s\"\n",f->id);
+              exit(1);
+          }
+      }
+      aux = aux->ant;
+    }
+    nv = cria_no_final(s,nivelEscopo);
     nv->tag = SFunc;
     nv->u.f = f;
     return nv;
 }
+
 static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo) {
     Simbolo *nv = cria_no_final(s,nivelEscopo);
     nv->tag = SParams;
@@ -152,12 +182,55 @@ static Simbolo* cria_no_param(Simbolo *s, ParametroL *p, int nivelEscopo) {
     return nv;
 }
 
-int verifica_tipo(Tipo *t, Base_TAG base) {
+static Simbolo* proc_no_func(Simbolo *s, const char *id) {
+
+  while (s != NULL) {
+    if (s->tag == SFunc) {
+      if (strcmp(s->u.f->id,id) == 0){
+        return s;
+      }
+    }
+    s = s->ant;
+  }
+  return NULL;
+}
+
+/*
+* AUXILIAR TIPOS
+*/
+static int verifica_tipo(Tipo *t, Base_TAG base) {
   if(t->tag == array)
     return 0;
   if(t->tipo_base == base)
     return 1;
   return 0;
+}
+
+static int cmp_tipo_base(Tipo *t1, Tipo *t2) {
+    if(t1->tipo_base < t2->tipo_base)
+      return -1;
+    else if (t1->tipo_base > t2->tipo_base)
+      return 1;
+    return 0;
+}
+
+static int cmp_tipo_array(Tipo *t1, Tipo *t2){
+
+  if (t1->tag != array || t2->tag != array) return -1;
+  if (cmp_tipo_base(t1,t2) == 0) {
+    Tipo *aux1,*aux2;
+    aux1 = t1->de;
+    aux2 = t2->de;
+    while (aux1 != NULL && aux2 != NULL) {
+      aux1 = aux1->de;
+      aux2 = aux2->de;
+    }
+    if (aux1 != NULL || aux2 != NULL)
+      return -1;
+    else
+      return 0;
+  }
+  return -1;
 }
 
 static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo) {
@@ -197,12 +270,38 @@ static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo) {
     exit(1);
 }
 
+/*
+* TIPAGEM EXPRESSOES
+*/
+
+static Exp* promove_tipo(Exp *e, Base_TAG tipo_base) {
+
+    Exp * expas = NULL;
+    Tipo *nvtipo = NULL;
+
+    nvtipo = (Tipo*)malloc(sizeof(Tipo));
+    if (nvtipo == NULL) {printf("memoria insuficiente\n");exit(1);}
+
+    nvtipo->tag = base;
+    nvtipo->tipo_base = tipo_base;
+    nvtipo->de = NULL;
+
+    expas = (Exp*)malloc(sizeof(Exp));
+    if (expas == NULL) {printf("memoria insuficiente\n");exit(1);}
+    expas->tag = EXP_AS;
+    expas->tipo = nvtipo;
+    expas->u.expnewas.exp = e;
+    expas->u.expnewas.tipo = nvtipo;
+
+    return expas;
+}
+
 static void tipa_expvar(Simbolo *s, Exp *e, int nivelEscopo) {
-  Tipo *t = NULL;
+
   tipa_variavel(s,e->u.expvar,nivelEscopo);
 
-  //promovendo expvar char para int
-  if (e->u.expvar->tipo->tipo_base == bChar) {
+  //promovendo expvar char para int?
+  /*if (e->u.expvar->tipo->tipo_base == bChar) {
     t = (Tipo *)malloc(sizeof(Tipo));
     if (t == NULL) {printf("falta de memoria\n");exit(1);}
     t->tag = base;
@@ -210,28 +309,17 @@ static void tipa_expvar(Simbolo *s, Exp *e, int nivelEscopo) {
     t->de = NULL;
     e->tipo = t;
   }
-  else {
-    e->tipo = e->u.expvar->tipo;
-  }
+  else {}*/
+  e->tipo = e->u.expvar->tipo;
 }
 
-static Simbolo* proc_id_func(Simbolo *s, const char *id) {
-
-  while (s != NULL) {
-    if (s->tag == SFunc) {
-      if (strcmp(s->u.f->id,id) == 0){
-        return s;
-      }
-    }
-    s = s->ant;
-  }
-  return NULL;
-}
-
-static Simbolo* tipa_chamada(Simbolo *s,Exp *e, int nivelEscopo) {
+static void tipa_expchamada(Simbolo *s,Exp *e, int nivelEscopo) {
   Simbolo *aux = NULL;
   ExpL *explist = NULL;
-  aux = proc_id_func(s,e->u.expchamada.idFunc);
+  ParametroL *paramlist = NULL;;
+
+  //achando definicao da funcao
+  aux = proc_no_func(s,e->u.expchamada.idFunc);
   if (aux != NULL) {
     e->u.expchamada.def = aux->u.f;
     e->tipo = aux->u.f->tiporet;
@@ -240,25 +328,69 @@ static Simbolo* tipa_chamada(Simbolo *s,Exp *e, int nivelEscopo) {
     printf("[Erro] funcao %s nao declarada\n",e->u.expchamada.idFunc);
     exit(1);
   }
-  //TODO tipar parametros!
+  //comparando parametros da chamada(explist) com a declaracao(paramlist)
+  paramlist = e->u.expchamada.def->params;
   explist = e->u.expchamada.params;
   while (explist != NULL) {
-    s = tipa_expressao(s,explist->e,nivelEscopo+1);
+    if (paramlist == NULL){
+      printf("[Erro] argumentos a mais em chamada de \"%s\"\n",e->u.expchamada.idFunc);
+      exit(1);
+    }
+    tipa_expressao(s,explist->e,nivelEscopo);
+    if (explist->e->tipo->tag != paramlist->tipo->tag) {
+      printf("[Erro] tipo de parametro na chamada de funcao \"%s\" inesperado\n",e->u.expchamada.idFunc);
+      exit(1);
+    }
+    if(explist->e->tipo->tag == base){
+      int resp = cmp_tipo_base(explist->e->tipo,paramlist->tipo);
+      //se tipo da chamada for menos expressivo faz a conversao para tipo mais expressivo
+      if (resp < 0){
+        Exp *expas = promove_tipo(explist->e,paramlist->tipo->tipo_base);
+        expas->u.expnewas.exp = explist->e;
+        explist->e = expas;
+      }
+      //se tipo da chamada for mais expressivo da erro de tipagem
+      else if (resp > 0) {
+        printf("[Erro] tipo de parametro na chamada de funcao \"%s\" inesperado\n",e->u.expchamada.idFunc);
+        exit(1);
+      }
+    }
+    else if (cmp_tipo_array(explist->e->tipo,paramlist->tipo) != 0) {
+      printf("[Erro] tipo de parametro na chamada de funcao \"%s\" inesperado\n",e->u.expchamada.idFunc);
+      exit(1);
+    }
     explist = explist->prox;
+    paramlist = paramlist->prox;
   }
-  return s;
+  if (paramlist != NULL) {
+    printf("[Erro] faltou argumentos em chamada de \"%s\"\n",e->u.expchamada.idFunc);
+    exit(1);
+  }
+  return;
 }
 
-static void tipa_expacesso(Exp *e) {
+static void tipa_expacesso(Simbolo *s,Exp *e, int nivelEscopo) {
+
+  tipa_expressao(s,e->u.expacesso.expvar,nivelEscopo);
+  tipa_expressao(s,e->u.expacesso.expindex,nivelEscopo);
+
   if (verifica_tipo(e->u.expacesso.expindex->tipo,bInt)) {
-    e->tipo = e->u.expacesso.expvar->tipo;
+    Tipo *nvtipo = NULL;
+
+    nvtipo = (Tipo*) malloc(sizeof(Tipo));
+    if (nvtipo == NULL) {printf("memoria insuficiente");exit(1);}
+    nvtipo->tag = base;
+    nvtipo->tipo_base = e->u.expacesso.expvar->tipo->tipo_base;
+    nvtipo->de = NULL;
+    e->tipo = nvtipo;
   }
   else {
     printf("[Erro Tipo] Esperado index tipo int encontrando %s\n",getStringTipo (e->u.expacesso.expindex->tipo));
     exit(1);
   }
 }
-static void tipa_expconstante (Exp *e) {
+
+static void tipa_expconstante(Simbolo *s, Exp *e, int nivelEscopo) {
     Tipo *t;
     t = (Tipo*) malloc(sizeof(Tipo));
     if (t == NULL) {printf("falta de memoria\n");exit(1);}
@@ -278,8 +410,15 @@ static void tipa_expconstante (Exp *e) {
     }
 }
 
-static void tipa_expnew (Exp *e) {
+static void tipa_expas(Simbolo *s, Exp *e, int nivelEscopo) {
+  //TODO o que eu deveria aceitar no AS? "x as int[]" qual o tipo disso?
+  tipa_expressao(s,e->u.expnewas.exp,nivelEscopo);
+  e->tipo = e->u.expnewas.exp->tipo;
+}
+
+static void tipa_expnew(Simbolo *s, Exp *e, int nivelEscopo) {
   Tipo *t;
+  tipa_expressao(s,e->u.expnewas.exp,nivelEscopo);
   t = (Tipo*) malloc(sizeof(Tipo));
   if (t == NULL) {printf("falta de memoria\n");exit(1);}
   t->tag = base;
@@ -288,23 +427,34 @@ static void tipa_expnew (Exp *e) {
   e->tipo = t;
 }
 
-static Simbolo* tipa_expbin (Simbolo*s, Exp *e, int nivelEscopo){
-  Tipo *menor, *maior, *nv;
-  s = tipa_expressao(s, e->u.expbin.expesq,nivelEscopo);
-  s = tipa_expressao(s, e->u.expbin.expdir,nivelEscopo);
+static void tipa_expbin(Simbolo*s, Exp *e, int nivelEscopo) {
+  Tipo *nv;
+  tipa_expressao(s, e->u.expbin.expesq,nivelEscopo);
+  tipa_expressao(s, e->u.expbin.expdir,nivelEscopo);
+
+  if (e->u.expbin.expesq->tipo->tag != base || e->u.expbin.expdir->tipo->tag != base){
+    printf("[Erro] tipo invalido em soma\n");exit(1);
+  }
+
   if (verifica_tipo(e->u.expbin.expesq->tipo,bVoid) || verifica_tipo(e->u.expbin.expdir->tipo,bVoid)){
     printf("[Erro] Operacao nao pode ser feita com tipo Void\n");
     exit(1);
   }
+
   switch (e->u.expbin.opbin) {
     case opadd:
     case opsub:
     case opmult:
     case opdiv:
+      //promovendo tipo "menor" para tipo "maior"
       if(cmp_tipo_base(e->u.expbin.expesq->tipo, e->u.expbin.expdir->tipo) > 0){
+        Exp *expas = promove_tipo(e->u.expbin.expdir,e->u.expbin.expesq->tipo->tipo_base);
+        e->u.expbin.expdir = expas;
         e->tipo = e->u.expbin.expesq->tipo;
       }
       else if (cmp_tipo_base(e->u.expbin.expesq->tipo, e->u.expbin.expdir->tipo) < 0){
+        Exp *expas = promove_tipo(e->u.expbin.expesq,e->u.expbin.expdir->tipo->tipo_base);
+        e->u.expbin.expesq = expas;
         e->tipo = e->u.expbin.expdir->tipo;
       }
       else {
@@ -324,9 +474,13 @@ static Simbolo* tipa_expbin (Simbolo*s, Exp *e, int nivelEscopo){
       nv->tipo_base = bInt;
       nv->de = NULL;
       if(cmp_tipo_base(e->u.expbin.expesq->tipo, e->u.expbin.expdir->tipo) > 0){
+        Exp *expas = promove_tipo(e->u.expbin.expdir,e->u.expbin.expesq->tipo->tipo_base);
+        e->u.expbin.expdir = expas;
         e->tipo = e->u.expbin.expesq->tipo;
       }
       else if (cmp_tipo_base(e->u.expbin.expesq->tipo, e->u.expbin.expdir->tipo) < 0){
+        Exp *expas = promove_tipo(e->u.expbin.expesq,e->u.expbin.expdir->tipo->tipo_base);
+        e->u.expbin.expesq = expas;
         e->tipo = e->u.expbin.expdir->tipo;
       }
       else {
@@ -352,46 +506,52 @@ static Simbolo* tipa_expbin (Simbolo*s, Exp *e, int nivelEscopo){
       e->tipo = nv;
     break;
   }
-  return s;
 }
 
-static Simbolo* tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
+static void tipa_expunaria(Simbolo *s, Exp *e, int nivelEscopo) {
+  tipa_expressao(s,e->u.expunaria.exp,nivelEscopo);
+  //o que deveria aceitar aqui? !x[] !new int [10]??
+  //aceitando apenas tipos base
+  if (e->u.expunaria.exp->tipo->tag != base && e->u.expunaria.exp->tipo->tipo_base != bVoid){
+    printf("[Erro] tipo inesperado para operador unario\n");
+    exit(1);
+  }
+  e->tipo = e->u.expunaria.exp->tipo;
+}
+
+static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
   //Simbolo *aux = NULL;
-  if (e == NULL) return s;
+  if (e == NULL)
+    return;
 
   switch (e->tag) {
 
     case EXP_BIN:
-      s = tipa_expbin(s,e,nivelEscopo);
+      tipa_expbin(s,e,nivelEscopo);
     break;
     case EXP_UNARIA:
-      s = tipa_expressao(s,e->u.expunaria.exp,nivelEscopo);
-      e->tipo = e->u.expunaria.exp->tipo;
+      tipa_expunaria(s,e,nivelEscopo);
     break;
     case EXP_VAR:
       tipa_expvar(s,e,nivelEscopo);
     break;
     case EXP_ACESSO:
-      s = tipa_expressao(s,e->u.expacesso.expvar,nivelEscopo);
-      s = tipa_expressao(s,e->u.expacesso.expindex,nivelEscopo);
-      tipa_expacesso(e);
+      tipa_expacesso(s,e,nivelEscopo);
     break;
     case EXP_CHAMADA:
-      tipa_chamada(s,e,nivelEscopo);
+      tipa_expchamada(s,e,nivelEscopo);
     break;
     case EXP_AS:
-        s = tipa_expressao(s,e->u.expnewas.exp,nivelEscopo);
-        e->tipo = e->u.expnewas.exp->tipo;
-        break;
+      tipa_expas(s,e,nivelEscopo);
+    break;
     case EXP_NEW:
-        s = tipa_expressao(s,e->u.expnewas.exp,nivelEscopo);
-        tipa_expnew(e);
+      tipa_expnew(s,e,nivelEscopo);
     break;
     case EXP_CTE:
-        tipa_expconstante(e);
+      tipa_expconstante(s,e,nivelEscopo);
     break;
   }
-  return s;
+  return;
 }
 
 static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo) {
@@ -401,31 +561,32 @@ static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo) {
     break;
     case CMD_ATR:
       tipa_expressao(s,cmd->u.atr.expvar,nivelEscopo);
-      s = tipa_expressao(s,cmd->u.atr.exp,nivelEscopo);
+      tipa_expressao(s,cmd->u.atr.exp,nivelEscopo);
     break;
     case CMD_WHILE:
-      s = tipa_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
+      tipa_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
       tipa_bloco(s,cmd->u.cmdwhile.bloco,nivelEscopo+1);
     break;
     case CMD_IF:
-      s = tipa_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
+      tipa_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
       tipa_bloco(s,cmd->u.cmdif.bloco,nivelEscopo+1);
     break;
     case CMD_IFELSE:
-      s = tipa_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
+      tipa_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
       tipa_bloco(s,cmd->u.cmdifelse.blocoif,nivelEscopo+1);
       tipa_bloco(s,cmd->u.cmdifelse.blocoelse,nivelEscopo+1);
     break;
     case CMD_RETURN:
     case CMD_PRINT:
     case CMD_CHAMADA:
-      s = tipa_expressao(s,cmd->u.exp,nivelEscopo);
+      tipa_expressao(s,cmd->u.exp,nivelEscopo);
     break;
     default:
     break;
   }
 
 }
+
 static Simbolo* tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
 
     DefVarL *auxvars;
@@ -454,8 +615,8 @@ static Simbolo* tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo) {
     return s;
 }
 
-
 void tipa_arvore(Programa *p) {
+
     Definicao *auxdef;
     Simbolo *s = NULL;
     int nivelEscopo = 0;

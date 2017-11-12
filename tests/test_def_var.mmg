@@ -1,9 +1,6 @@
-f : char;
-x : char;
-global1 : int[];
-funcao1(local2 : float): int {
-  @ funcao2(local2);
+somad: int[];
+main(l2 : float): int {
 }
-funcao2(local2 : float): int {
-
+soma(x : float, y : int[] ): float {
+  return x;
 }
