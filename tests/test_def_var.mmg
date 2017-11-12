@@ -2,5 +2,12 @@ somad: int[];
 main(l2 : float): int {
 }
 soma(x : float, y : int[] ): float {
-  return x;
+  if (1) {
+    x : int;
+    x = 23.0;
+  }
+  else {
+    x: int;
+    x = 64;
+  }
 }

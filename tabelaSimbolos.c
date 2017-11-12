@@ -44,6 +44,8 @@ static void tipa_expbin(Simbolo*s, Exp *e, int nivelEscopo);
 static void tipa_expunaria(Simbolo *s, Exp *e, int nivelEscopo);
 static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo);
 
+static void checa_tipo_cmdatr(Simbolo *s, CMD *cmd, int nivelEscopo);
+static void checa_tipo_expcond(Simbolo*s, Exp*e, int nivelEscopo);
 static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo);
 
 static Simbolo* tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo);
@@ -554,30 +556,76 @@ static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
   return;
 }
 
+static void checa_tipo_cmdatr(Simbolo *s, CMD *cmd, int nivelEscopo) {
+  tipa_expressao(s,cmd->u.atr.expvar,nivelEscopo);
+  tipa_expressao(s,cmd->u.atr.exp,nivelEscopo);
+
+  if(cmd->u.atr.expvar->tipo->tipo_base == bVoid && cmd->u.atr.exp->tipo->tipo_base == bVoid){
+    printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+    exit(1);
+  }
+
+  if(cmd->u.atr.expvar->tipo->tag == base && cmd->u.atr.exp->tipo->tag == base) {
+    int resp = cmp_tipo_base(cmd->u.atr.exp->tipo, cmd->u.atr.expvar->tipo);
+    if (resp < 0){
+      //promove tipo da expressao para o tipo da variavel
+      Exp *expas;
+      expas = promove_tipo(cmd->u.atr.exp,cmd->u.atr.expvar->tipo->tipo_base);
+      expas->u.expnewas.exp = cmd->u.atr.exp;
+      cmd->u.atr.exp = expas;
+    }
+    if (resp > 0) {
+      //tipo da expressao é mais expressivo que da variavel, nao converte
+      printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+      exit(1);
+    }
+  }
+  else if (cmd->u.atr.expvar->tipo->tag == array && cmd->u.atr.exp->tipo->tag == array) {
+    if(cmp_tipo_array(cmd->u.atr.expvar->tipo,cmd->u.atr.exp->tipo) != 0){
+      printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+      exit(1);
+    }
+  }
+  else {
+    printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+    exit(1);
+  }
+  return;
+}
+
+static void checa_tipo_expcond(Simbolo*s, Exp*e, int nivelEscopo) {
+
+  tipa_expressao(s,e,nivelEscopo);
+  if (e->tipo->tag != base && e->tipo->tipo_base != bInt) {
+      printf("[Erro] tipo condicao inesperado, ao inves de \"int\" foi dado \"%s\"",getStringTipo(e->tipo));
+  }
+}
+
 static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo) {
   switch (cmd->tag) {
     case CMD_BLOCK:
-      tipa_bloco(s,cmd->u.bloco,nivelEscopo+1);
+      s = tipa_bloco(s,cmd->u.bloco,nivelEscopo+1);
     break;
     case CMD_ATR:
-      tipa_expressao(s,cmd->u.atr.expvar,nivelEscopo);
-      tipa_expressao(s,cmd->u.atr.exp,nivelEscopo);
+      checa_tipo_cmdatr(s,cmd,nivelEscopo);
     break;
     case CMD_WHILE:
-      tipa_expressao(s,cmd->u.cmdwhile.exp,nivelEscopo);
-      tipa_bloco(s,cmd->u.cmdwhile.bloco,nivelEscopo+1);
+      checa_tipo_expcond(s,cmd->u.cmdwhile.exp,nivelEscopo);
+      s = tipa_bloco(s,cmd->u.cmdwhile.bloco,nivelEscopo+1);
     break;
     case CMD_IF:
-      tipa_expressao(s,cmd->u.cmdif.exp,nivelEscopo);
-      tipa_bloco(s,cmd->u.cmdif.bloco,nivelEscopo+1);
+      checa_tipo_expcond(s,cmd->u.cmdif.exp,nivelEscopo);
+      s = tipa_bloco(s,cmd->u.cmdif.bloco,nivelEscopo+1);
     break;
     case CMD_IFELSE:
-      tipa_expressao(s,cmd->u.cmdifelse.exp,nivelEscopo);
-      tipa_bloco(s,cmd->u.cmdifelse.blocoif,nivelEscopo+1);
-      tipa_bloco(s,cmd->u.cmdifelse.blocoelse,nivelEscopo+1);
+      checa_tipo_expcond(s,cmd->u.cmdifelse.exp,nivelEscopo);
+      s = tipa_bloco(s,cmd->u.cmdifelse.blocoif,nivelEscopo+1);
+      s = tipa_bloco(s,cmd->u.cmdifelse.blocoelse,nivelEscopo+1);
     break;
     case CMD_RETURN:
+      //TODO checa tipo
     case CMD_PRINT:
+      //TODO checa tipo
     case CMD_CHAMADA:
       tipa_expressao(s,cmd->u.exp,nivelEscopo);
     break;
