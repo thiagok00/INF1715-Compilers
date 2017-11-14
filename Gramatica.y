@@ -1,13 +1,13 @@
 %code requires {
   #include <stdio.h>
   #include <string.h>
-  #if !defined(tree_h)
-  #include "tree.h"
-  #define tree_h
+  #if !defined(ArvoreSintaticaAbstrata_h)
+  #include "ArvoreSintaticaAbstrata.h"
+  #define ArvoreSintaticaAbstrata_h
   #endif
-  #if !defined(tabelaSimbolos_h)
-  #include "tabelaSimbolos.h"
-  #define tabelaSimbolos_h
+  #if !defined(TabelaSimbolos_h)
+  #include "TabelaSimbolos.h"
+  #define TabelaSimbolos_h
   #endif
 }
 

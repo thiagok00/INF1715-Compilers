@@ -1,9 +1,9 @@
 %{
 #include <stdio.h>
-#include "grammar.tab.h"
-#if !defined(tree_h)
-  #include "tree.h"
-  #define tree_h
+#include "Gramatica.tab.h"
+#if !defined(ArvoreSintaticaAbstrata_h)
+  #include "ArvoreSintaticaAbstrata.h"
+  #define ArvoreSintaticaAbstrata_h
 #endif
 
 /* malloc string */

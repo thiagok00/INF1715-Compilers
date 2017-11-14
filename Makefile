@@ -1,20 +1,11 @@
 main:
-	flex lexico.lex
-	bison -d -v grammar.y
-	cc -Wall lex.yy.c grammar.tab.c tree.c tabelaSimbolos.c -o out
-
-testsyntax: main
-	python test.py unittest
-
-saveresult:
-	python test.py saveresults
-
-testast:
-	out
+	flex Tokens.lex
+	bison -d -v Gramatica.y
+	cc -Wall lex.yy.c Gramatica.tab.c ArvoreSintaticaAbstrata.c TabelaSimbolos.c -o out
 
 clean:
 	rm out
 	rm lex.yy.c
-	rm grammar.tab.c
-	rm grammar.tab.h
-	rm grammar.output
+	rm Gramatica.tab.c
+	rm Gramatica.tab.h
+	rm Gramatica.output

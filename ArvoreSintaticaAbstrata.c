@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined(tree_h)
-#include "tree.h"
-#define tree_h
+#if !defined(ArvoreSintaticaAbstrata_h)
+#include "ArvoreSintaticaAbstrata.h"
+#define ArvoreSintaticaAbstrata_h
 #endif
 
 /*

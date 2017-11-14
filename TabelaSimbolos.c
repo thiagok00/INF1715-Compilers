@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "tabelaSimbolos.h"
+#include "TabelaSimbolos.h"
 
 typedef enum SIM_TAG { SVar, SFunc, SParams } SIM_Tag;
 typedef struct simbolo

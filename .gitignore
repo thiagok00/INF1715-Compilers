@@ -3,9 +3,9 @@ out
 
 #flex and bison files
 lex.yy.c
-grammar.tab.c
-grammar.tab.h
-grammar.output
+Gramatica.tab.c
+Gramatica.tab.h
+Gramatica.output
 
 main
 # Prerequisites
