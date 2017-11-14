@@ -41,7 +41,6 @@
   Constante* cons;
   Var *var;
   ExpL* expl;
-
 }
 
 %token	TK_INT
@@ -77,10 +76,10 @@
 %type<defvars> lista_def_var lista_def_var2
 %type<cmdL> lista_comandos
 %type<cmd> comando
-%type<exp> expressao exp_or exp_and exp_cmp exp_add exp_mult exp_unaria exp_as expressao_base exp_variavel chamada
+%type<exp> expressao exp_or exp_and exp_cmp exp_add exp_mult exp_unaria exp_as expressao_base chamada
 %type<cons> constante
 %type<expl> lista_exp lista_exp2
-
+%type<var> variavel
 
 %%
 
@@ -204,9 +203,9 @@ comando:                bloco { $$ = (CMD*)malloc(sizeof(CMD));
                     |   TK_RETURN ';' { $$ = (CMD*)malloc(sizeof(CMD));
                                         $$->tag = CMD_RETURNVOID;
                                       }
-                    |   exp_variavel '=' expressao ';' { $$ = (CMD*)malloc(sizeof(CMD));
+                    |   variavel '=' expressao ';' { $$ = (CMD*)malloc(sizeof(CMD));
                                                      $$->tag = CMD_ATR;
-                                                     $$->u.atr.expvar = $1;
+                                                     $$->u.atr.var = $1;
                                                      $$->u.atr.exp = $3;
                                                    }
                     |   TK_IF  expressao  bloco { $$ = (CMD*)malloc(sizeof(CMD));
@@ -232,16 +231,16 @@ comando:                bloco { $$ = (CMD*)malloc(sizeof(CMD));
                                     }
                     ;
 
-exp_variavel:               ID { $$ = (Exp*)malloc(sizeof(Exp));
-                                 $$->tag = EXP_VAR;
-                                 $$->u.expvar = (Var*)malloc(sizeof(Var));
-                                 $$->u.expvar->id = $1;
-                                 $$->u.expvar->tipo = NULL;
+variavel:               ID {     $$ = (Var*)malloc(sizeof(Var));
+                                 $$->tag = vVar;
+                                 $$->u.vvar.id = $1;
+                                 $$->tipo = NULL;
                            }
-                    |   expressao_base '[' expressao ']' {  $$ = (Exp*)malloc(sizeof(Exp));
-                                                            $$->tag = EXP_ACESSO;
-                                                            $$->u.expacesso.expvar = $1;
-                                                            $$->u.expacesso.expindex = $3;
+                    |   expressao_base '[' expressao ']' {  $$ = (Var*)malloc(sizeof(Var));
+                                                            $$->tag = vAcesso;
+                                                            $$->u.vacesso.expvar = $1;
+                                                            $$->u.vacesso.expindex = $3;
+                                                            $$->tipo = NULL;
                     }
                     ;
 
@@ -382,7 +381,10 @@ expressao_base:         constante { $$ = (Exp*)malloc(sizeof(Exp));
                                     $$->tag = EXP_CTE;
                                     $$->u.expcte = $1;
                                   }
-                    |   exp_variavel  { $$ = $1;}
+                    |   variavel  { $$ = (Exp*)malloc(sizeof(Exp));
+                                    $$->tag = EXP_VAR;
+                                    $$->u.expvar = $1;
+                                  }
                     |   '(' expressao ')' {$$ = $2;}
                     |   chamada { $$ = $1;}
                     |   TK_NEW tipo '[' expressao ']'{  $$ = (Exp*)malloc(sizeof(Exp));

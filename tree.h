@@ -96,16 +96,24 @@ typedef struct programa {
 /*
 * Variavel
 */
+typedef enum Var_TAG { vVar, vAcesso} Var_TAG;
 typedef struct Var
 {
+	Var_TAG tag;
   Tipo *tipo;
-	const char *id;
-
-	EscopoTag escopo;
 	union {
-  	DefVar* def;
-		ParametroL *defp;
-	}u;
+		struct {
+			const char *id;
+			EscopoTag escopo;
+			union {
+		  	DefVar* def;
+				ParametroL *defp;
+			}d;
+		}vvar;
+		struct {
+			struct Exp *expvar, *expindex;
+		}vacesso;
+}u;
 } Var;
 
 
@@ -118,7 +126,6 @@ typedef enum EXP_TAG {
 	EXP_UNARIA,
 	EXP_CTE,
 	EXP_VAR,
-	EXP_ACESSO,
 	EXP_CHAMADA,
 	EXP_NEW,
 	EXP_AS
@@ -148,9 +155,6 @@ typedef struct Exp{
 	    const char *idFunc;
 	    DefFunc *def;
 	  } expchamada;
-		struct {
-			struct Exp *expvar, *expindex;
-		} expacesso;
 	}u;
 }Exp;
 
@@ -195,7 +199,7 @@ typedef struct CMD {
 	    Bloco *bloco;
 	  } cmdwhile;
 	  struct {
-	    Exp *expvar;
+	    Var *var;
 	    Exp *exp;
 	  } atr;
 	}u;

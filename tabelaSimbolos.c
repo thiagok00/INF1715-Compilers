@@ -209,6 +209,8 @@ static int verifica_tipo(Tipo *t, Base_TAG base) {
 }
 
 static int cmp_tipo_base(Tipo *t1, Tipo *t2) {
+  if(t1->tipo_base == bChar && t2->tipo_base == bInt) return 0; //equivalencia de char e int
+  if(t1->tipo_base == bInt && t2->tipo_base == bChar) return 0; //equivalencia de char e int
     if(t1->tipo_base < t2->tipo_base)
       return -1;
     else if (t1->tipo_base > t2->tipo_base)
@@ -239,12 +241,12 @@ static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo) {
     ParametroL *p;
     while (s != NULL){
       if (s->tag == SVar) {
-        if(strcmp(s->u.v->id,v->id) == 0) {
-          v->u.def = s->u.v;
+        if(strcmp(s->u.v->id,v->u.vvar.id) == 0) {
+          v->u.vvar.d.def = s->u.v;
           v->tipo = s->u.v->tipo;
-          v->escopo = v->u.def->escopo;
+          v->u.vvar.escopo = v->u.vvar.d.def->escopo;
           if(v->tipo->tipo_base == bVoid) {
-            printf("[Erro] %s nao pode ser declarada com tipo void\n",v->id);
+            printf("[Erro] %s nao pode ser declarada com tipo void\n",v->u.vvar.id);
             exit(1);
           }
           return;
@@ -253,12 +255,12 @@ static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo) {
       else if (s->tag == SParams) {
         p = s->u.p;
         while (p != NULL) {
-          if (strcmp(p->id,v->id) == 0){
-            v->escopo = EscopoFunc;
-            v->u.defp = p;
+          if (strcmp(p->id,v->u.vvar.id) == 0){
+            v->u.vvar.escopo = EscopoFunc;
+            v->u.vvar.d.defp = p;
             v->tipo = p->tipo;
             if(v->tipo->tipo_base == bVoid) {
-              printf("[Erro] %s nao pode ser declarada com tipo void\n",v->id);
+              printf("[Erro] %s nao pode ser declarada com tipo void\n",v->u.vvar.id);
               exit(1);
             }
             return;
@@ -268,7 +270,7 @@ static void tipa_variavel(Simbolo *s, Var *v, int nivelEscopo) {
       } /* fim else if */
       s = s->ant;
     }
-    printf("[Erro] variavel %s nao declarada\n",v->id);
+    printf("[Erro] variavel %s nao declarada\n",v->u.vvar.id);
     exit(1);
 }
 
@@ -300,19 +302,26 @@ static Exp* promove_tipo(Exp *e, Base_TAG tipo_base) {
 
 static void tipa_expvar(Simbolo *s, Exp *e, int nivelEscopo) {
 
-  tipa_variavel(s,e->u.expvar,nivelEscopo);
+  Tipo *t;
+  if(e->u.expvar->tag == vVar) {
+    tipa_variavel(s,e->u.expvar,nivelEscopo);
 
-  //promovendo expvar char para int?
-  /*if (e->u.expvar->tipo->tipo_base == bChar) {
+    //promovendo expvar char para int
     t = (Tipo *)malloc(sizeof(Tipo));
     if (t == NULL) {printf("falta de memoria\n");exit(1);}
-    t->tag = base;
-    t->tipo_base = bInt;
     t->de = NULL;
+    t->tag = base;
+    if(e->u.expvar->tipo->tipo_base == bChar){
+      t->tipo_base = bInt;
+    }
+    else {
+      t->tipo_base = e->tipo->tipo_base;
+    }
     e->tipo = t;
   }
-  else {}*/
-  e->tipo = e->u.expvar->tipo;
+  else if (e->u.expvar->tag == vAcesso) {
+    tipa_expacesso(s,e,nivelEscopo);
+  }
 }
 
 static void tipa_expchamada(Simbolo *s,Exp *e, int nivelEscopo) {
@@ -373,21 +382,21 @@ static void tipa_expchamada(Simbolo *s,Exp *e, int nivelEscopo) {
 
 static void tipa_expacesso(Simbolo *s,Exp *e, int nivelEscopo) {
 
-  tipa_expressao(s,e->u.expacesso.expvar,nivelEscopo);
-  tipa_expressao(s,e->u.expacesso.expindex,nivelEscopo);
+  tipa_expressao(s,e->u.expvar->u.vacesso.expvar,nivelEscopo);
+  tipa_expressao(s,e->u.expvar->u.vacesso.expindex,nivelEscopo);
 
-  if (verifica_tipo(e->u.expacesso.expindex->tipo,bInt)) {
+  if (verifica_tipo(e->u.expvar->u.vacesso.expindex->tipo,bInt)) {
     Tipo *nvtipo = NULL;
 
     nvtipo = (Tipo*) malloc(sizeof(Tipo));
     if (nvtipo == NULL) {printf("memoria insuficiente");exit(1);}
     nvtipo->tag = base;
-    nvtipo->tipo_base = e->u.expacesso.expvar->tipo->tipo_base;
+    nvtipo->tipo_base = e->u.expvar->u.vacesso.expvar->tipo->tipo_base;
     nvtipo->de = NULL;
     e->tipo = nvtipo;
   }
   else {
-    printf("[Erro Tipo] Esperado index tipo int encontrando %s\n",getStringTipo (e->u.expacesso.expindex->tipo));
+    printf("[Erro Tipo] Esperado index tipo int encontrando %s\n",getStringTipo (e->u.expvar->u.vacesso.expindex->tipo));
     exit(1);
   }
 }
@@ -537,9 +546,6 @@ static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
     case EXP_VAR:
       tipa_expvar(s,e,nivelEscopo);
     break;
-    case EXP_ACESSO:
-      tipa_expacesso(s,e,nivelEscopo);
-    break;
     case EXP_CHAMADA:
       tipa_expchamada(s,e,nivelEscopo);
     break;
@@ -557,37 +563,37 @@ static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
 }
 
 static void checa_tipo_cmdatr(Simbolo *s, CMD *cmd, int nivelEscopo) {
-  tipa_expressao(s,cmd->u.atr.expvar,nivelEscopo);
+  tipa_variavel(s,cmd->u.atr.var,nivelEscopo);
   tipa_expressao(s,cmd->u.atr.exp,nivelEscopo);
 
-  if(cmd->u.atr.expvar->tipo->tipo_base == bVoid && cmd->u.atr.exp->tipo->tipo_base == bVoid){
-    printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+  if(cmd->u.atr.var->tipo->tipo_base == bVoid && cmd->u.atr.exp->tipo->tipo_base == bVoid){
+    printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.var->tipo));
     exit(1);
   }
 
-  if(cmd->u.atr.expvar->tipo->tag == base && cmd->u.atr.exp->tipo->tag == base) {
-    int resp = cmp_tipo_base(cmd->u.atr.exp->tipo, cmd->u.atr.expvar->tipo);
+  if(cmd->u.atr.var->tipo->tag == base && cmd->u.atr.exp->tipo->tag == base) {
+    int resp = cmp_tipo_base(cmd->u.atr.exp->tipo, cmd->u.atr.var->tipo);
     if (resp < 0){
       //promove tipo da expressao para o tipo da variavel
       Exp *expas;
-      expas = promove_tipo(cmd->u.atr.exp,cmd->u.atr.expvar->tipo->tipo_base);
+      expas = promove_tipo(cmd->u.atr.exp,cmd->u.atr.var->tipo->tipo_base);
       expas->u.expnewas.exp = cmd->u.atr.exp;
       cmd->u.atr.exp = expas;
     }
     if (resp > 0) {
       //tipo da expressao é mais expressivo que da variavel, nao converte
-      printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+      printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.var->tipo));
       exit(1);
     }
   }
-  else if (cmd->u.atr.expvar->tipo->tag == array && cmd->u.atr.exp->tipo->tag == array) {
-    if(cmp_tipo_array(cmd->u.atr.expvar->tipo,cmd->u.atr.exp->tipo) != 0){
-      printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+  else if (cmd->u.atr.var->tipo->tag == array && cmd->u.atr.exp->tipo->tag == array) {
+    if(cmp_tipo_array(cmd->u.atr.var->tipo,cmd->u.atr.exp->tipo) != 0){
+      printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.var->tipo));
       exit(1);
     }
   }
   else {
-    printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.expvar->tipo));
+    printf("[Erro] atribuicao invalida de tipo \"%s\" para tipo \"%s\"\n",getStringTipo(cmd->u.atr.exp->tipo),getStringTipo(cmd->u.atr.var->tipo));
     exit(1);
   }
   return;

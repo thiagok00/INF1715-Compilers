@@ -1,13 +1,5 @@
-somad: int[];
-main(l2 : float): int {
-}
-soma(x : float, y : int[] ): float {
-  if (1) {
-    x : int;
-    x = 23.0;
-  }
-  else {
-    x: int;
-    x = 64;
-  }
+c : char;
+main(c2 : char): void {
+  i : int;
+  c = c;
 }

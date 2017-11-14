@@ -103,12 +103,14 @@ static void print_constante(Constante *c,int nivel) {
 static void print_variavel(Var* v, int nivel) {
   if (v == NULL) return;
 
-  if (v->tipo == NULL) {
-    //ainda nao costurado
-    printf("%d\t [Variavel] %s\n",nivel,v->id);
+
+  if (v->tag == vVar) {
+    printf("%d\t [Variavel %s] %s : %s\n",nivel,getStringEscopo(v->u.vvar.escopo),v->u.vvar.id,getStringTipo(v->tipo));
   }
-  else {
-    printf("%d\t [Variavel %s] %s : %s\n",nivel,getStringEscopo(v->escopo),v->id,getStringTipo(v->tipo));
+  else if (v->tag == vAcesso) {
+    printf("%d\t [Exp Acesso : %s]\n",nivel, getStringTipo(v->tipo));
+    print_exp(v->u.vacesso.expvar,nivel+1);
+    print_exp(v->u.vacesso.expindex,nivel+1);
   }
 }
 
@@ -189,11 +191,6 @@ static void print_exp(Exp *e, int nivel) {
           printf("%d\t [Exp Variavel : %s]\n",nivel,getStringTipo(e->tipo));
           print_variavel(e->u.expvar,nivel+1);
         break;
-        case EXP_ACESSO:
-          printf("%d\t [Exp Acesso : %s]\n",nivel, getStringTipo(e->tipo));
-          print_exp(e->u.expacesso.expvar,nivel+1);
-          print_exp(e->u.expacesso.expindex,nivel+1);
-        break;
         case EXP_CHAMADA:
           auxparam = e->u.expchamada.params;
           nivelparams = nivel;
@@ -229,7 +226,7 @@ static void print_cmd(CMD *c,int nivel) {
 
       case CMD_ATR:
         printf("%d\t [CMD ATRIBUIÇAO]\n",nivel);
-        print_exp(c->u.atr.expvar,nivel+1);
+        print_variavel(c->u.atr.var,nivel+1);
         print_exp(c->u.atr.exp,nivel+1);
       break;
       case CMD_WHILE:
