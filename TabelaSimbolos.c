@@ -315,7 +315,7 @@ static void tipa_expvar(Simbolo *s, Exp *e, int nivelEscopo) {
       t->tipo_base = bInt;
     }
     else {
-      t->tipo_base = e->tipo->tipo_base;
+      t->tipo_base = e->u.expvar->tipo->tipo_base;
     }
     e->tipo = t;
   }
@@ -458,15 +458,17 @@ static void tipa_expbin(Simbolo*s, Exp *e, int nivelEscopo) {
     case opmult:
     case opdiv:
       //promovendo tipo "menor" para tipo "maior"
-      if(cmp_tipo_base(e->u.expbin.expesq->tipo, e->u.expbin.expdir->tipo) > 0){
-        Exp *expas = promove_tipo(e->u.expbin.expdir,e->u.expbin.expesq->tipo->tipo_base);
-        e->u.expbin.expdir = expas;
-        e->tipo = e->u.expbin.expesq->tipo;
-      }
-      else if (cmp_tipo_base(e->u.expbin.expesq->tipo, e->u.expbin.expdir->tipo) < 0){
-        Exp *expas = promove_tipo(e->u.expbin.expesq,e->u.expbin.expdir->tipo->tipo_base);
+      if(e->u.expbin.expesq->tipo->tipo_base == bInt && e->u.expbin.expdir->tipo->tipo_base == bFloat){
+        Exp *expas = promove_tipo(e->u.expbin.expdir,bFloat);
+        expas->u.expnewas.exp = e->u.expbin.expesq;
         e->u.expbin.expesq = expas;
         e->tipo = e->u.expbin.expdir->tipo;
+      }
+      else if (e->u.expbin.expesq->tipo->tipo_base == bFloat && e->u.expbin.expdir->tipo->tipo_base == bInt){
+        Exp *expas = promove_tipo(e->u.expbin.expdir,bFloat);
+        expas->u.expnewas.exp = e->u.expbin.expdir;
+        e->u.expbin.expdir = expas;
+        e->tipo = e->u.expbin.expesq->tipo;
       }
       else {
         e->tipo = e->u.expbin.expesq->tipo;
@@ -631,9 +633,15 @@ static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo) {
     case CMD_RETURN:
       //TODO checa tipo
     case CMD_PRINT:
-      //TODO checa tipo
+      tipa_expressao(s,cmd->u.e,nivelEscopo);
+      //TODO PRINT STRINGS
+      if(cmd->u.e->tipo->tipo_base != bInt && cmd->u.e->tipo->tipo_base != bFloat){
+        printf("[Erro] tipo inesperado em print :%s\n",getStringTipo(cmd->u.e->tipo));
+        exit(1);
+      }
+    break;
     case CMD_CHAMADA:
-      tipa_expressao(s,cmd->u.exp,nivelEscopo);
+      tipa_expressao(s,cmd->u.e,nivelEscopo);
     break;
     default:
     break;

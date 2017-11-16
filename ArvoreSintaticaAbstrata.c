@@ -212,7 +212,6 @@ static void print_exp(Exp *e, int nivel) {
         case EXP_AS:
           printf("%d\t [Exp As : %s]\n",nivel, getStringTipo(e->tipo));
           print_exp(e->u.expnewas.exp,nivel+1);
-          printf("%d\t [Tipo : %s]\n",nivel+1,getStringTipo(e->u.expnewas.tipo));
         break;
         default:
           printf("EXP N RECONHECIDA\n   ");
@@ -247,14 +246,14 @@ static void print_cmd(CMD *c,int nivel) {
       break;
       case CMD_RETURN:
         printf("%d\t [CMD RETURN]\n",nivel);
-        print_exp(c->u.exp,nivel+1);
+        print_exp(c->u.e,nivel+1);
       break;
       case CMD_RETURNVOID:
         printf("%d\t [CMD RETURN VOID]\n",nivel);
       break;
       case CMD_CHAMADA:
         printf("%d\t [CMD CHAMADA]\n",nivel);
-        print_exp(c->u.exp,nivel+1);
+        print_exp(c->u.e,nivel+1);
       break;
       case CMD_BLOCK:
         printf("%d\t [CMD BLOCK]\n",nivel);
@@ -262,7 +261,7 @@ static void print_cmd(CMD *c,int nivel) {
       break;
       case CMD_PRINT:
         printf("%d\t [CMD PRINT]\n",nivel);
-        print_exp(c->u.exp,nivel+1);
+        print_exp(c->u.e,nivel+1);
       break;
       case CMD_SKIP:
         printf("%d\t [CMD SKIP]\n",nivel);

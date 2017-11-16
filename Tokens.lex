@@ -36,7 +36,7 @@ int yy_lines = 1;
 "while"                                 { return TK_WHILE; }
 "return"                                { return TK_RETURN; }
 "=="                                    { return TK_EQUAL; }
-"˜="                                    { return TK_NOTEQUAL; }
+"~="                                    { return TK_NOTEQUAL; }
 "<="                                    { return TK_LESSEQUAL; }
 ">="                                    { return TK_GREATEREQUAL; }
 "&&"                                    { return TK_AND; }

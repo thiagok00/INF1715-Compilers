@@ -1,7 +1,19 @@
 main:
 	flex Tokens.lex
 	bison -d -v Gramatica.y
-	cc -Wall lex.yy.c Gramatica.tab.c ArvoreSintaticaAbstrata.c TabelaSimbolos.c -o out
+	cc -Wall lex.yy.c Gramatica.tab.c ArvoreSintaticaAbstrata.c TabelaSimbolos.c GeraCodigo.c -o out
+
+compmonga: main
+	./out < tests/test_def_var.mmg
+	clang-3.8 -o monga monga.ll
+	./monga
+
+geraex:
+	clang-3.8 -emit-llvm -S -O0 example.c
+
+rodaex:
+	clang-3.8 -o example example.ll
+	./example
 
 clean:
 	rm out
@@ -9,3 +21,4 @@ clean:
 	rm Gramatica.tab.c
 	rm Gramatica.tab.h
 	rm Gramatica.output
+	rm monga

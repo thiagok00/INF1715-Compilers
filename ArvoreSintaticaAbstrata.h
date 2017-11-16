@@ -136,6 +136,7 @@ typedef struct Exp{
 	Tipo *tipo;
 	union {
 	    Var *expvar;
+			struct Exp * exp;
 	    Constante *expcte;
 	  struct {
 	    struct Exp *exp;
@@ -183,7 +184,7 @@ typedef enum CMD_TAG {
 typedef struct CMD {
   CMD_TAG tag;
 	union {
-	    Exp *exp; /* return, print, chamada */
+	    Exp *e; /* return, print, chamada */
 	    Bloco *bloco;
 	  struct {
 			Exp* 	exp;

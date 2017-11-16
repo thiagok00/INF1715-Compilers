@@ -1,5 +1,15 @@
+i : int;
+f : float;
 c : char;
 main(c2 : char): void {
   i : int;
-  c = c;
+  f : float;
+  c : char;
+
+  i = 10;
+
+  c = 24;
+
+  @ c+20.0 ;
+
 }

@@ -9,6 +9,10 @@
   #include "TabelaSimbolos.h"
   #define TabelaSimbolos_h
   #endif
+  #if !defined(GeraCodigo_h)
+  #include "GeraCodigo.h"
+  #define GeraCodigo_h
+  #endif
 }
 
 %code {
@@ -194,11 +198,11 @@ comando:                bloco { $$ = (CMD*)malloc(sizeof(CMD));
                               }
                     |   '@' expressao ';'{ $$ = (CMD*)malloc(sizeof(CMD));
                                            $$->tag = CMD_PRINT;
-                                           $$->u.exp = $2;
+                                           $$->u.e = $2;
                                         }
                     |   TK_RETURN expressao ';' { $$ = (CMD*)malloc(sizeof(CMD));
                                                   $$->tag = CMD_RETURN;
-                                                  $$->u.exp = $2;
+                                                  $$->u.e = $2;
                                                 }
                     |   TK_RETURN ';' { $$ = (CMD*)malloc(sizeof(CMD));
                                         $$->tag = CMD_RETURNVOID;
@@ -226,7 +230,7 @@ comando:                bloco { $$ = (CMD*)malloc(sizeof(CMD));
                                                        }
                     |   chamada ';' { $$ = (CMD*)malloc(sizeof(CMD));
                                       $$->tag = CMD_CHAMADA;
-                                      $$->u.exp = $1;
+                                      $$->u.e = $1;
 
                                     }
                     ;
@@ -425,5 +429,6 @@ int main(void) {
   yyparse();
   tipa_arvore(nodePrograma);
   print_tree(nodePrograma);
+  geracodigo_arvore(nodePrograma);
   return 0;
 }

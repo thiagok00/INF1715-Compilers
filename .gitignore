@@ -6,6 +6,10 @@ lex.yy.c
 Gramatica.tab.c
 Gramatica.tab.h
 Gramatica.output
+example
+example.ll
+monga
+monga.ll
 
 main
 # Prerequisites
