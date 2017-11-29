@@ -128,7 +128,7 @@ static void print_exp_unaria(Exp *e, int nivel){
 }
 
 static void print_exp_binaria(Exp *e, int nivel){
-  if (e == NULL || e->tag != EXP_BIN) return;
+  if (e == NULL) return;
   switch(e->u.expbin.opbin){
 
     case opadd:
@@ -177,7 +177,10 @@ static void print_exp(Exp *e, int nivel) {
 
       if(e == NULL) return;
       switch (e->tag) {
-        case EXP_BIN:
+        case EXP_ARITH:
+        case EXP_AND:
+        case EXP_OR:
+        case EXP_CMP:
           print_exp_binaria(e,nivel);
         break;
         case EXP_UNARIA:

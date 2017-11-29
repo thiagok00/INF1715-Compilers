@@ -51,12 +51,12 @@ static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo);
 static Simbolo* tipa_bloco(Simbolo *s, Bloco *b,int nivelEscopo);
 
 //para debug apenas, printa estrutura auxilar usada para costurar a arvore
-static void print_simbolos(Simbolo *s);
+//static void print_simbolos(Simbolo *s);
 
 /*
 * implementations
 */
-
+/*
 static void print_simbolos(Simbolo *s) {
     if (s == NULL) return;
     s = s->prim;
@@ -81,7 +81,7 @@ static void print_simbolos(Simbolo *s) {
       s = s->prox;
     }
     printf("\n");
-}
+}*/
 
 static Simbolo * destroi_simbolo_final(Simbolo *s) {
   Simbolo *aux = s;
@@ -539,7 +539,10 @@ static void tipa_expressao(Simbolo *s, Exp *e, int nivelEscopo) {
 
   switch (e->tag) {
 
-    case EXP_BIN:
+    case EXP_ARITH:
+    case EXP_OR:
+    case EXP_AND:
+    case EXP_CMP:
       tipa_expbin(s,e,nivelEscopo);
     break;
     case EXP_UNARIA:
@@ -696,7 +699,7 @@ void tipa_arvore(Programa *p) {
         }
         auxdef = auxdef->prox;
       }
-      print_simbolos(s);
+      //print_simbolos(s);
     auxdef = p->defs;
     while (auxdef != NULL) {
         if (auxdef->tag == DFunc) {

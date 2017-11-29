@@ -1,0 +1,13 @@
+main (): void {
+  c : char;
+  i : int;
+  f : float;
+
+  c = 10;
+  i = 3 + c;
+  f = i + 7;
+  @ f ;
+
+  @ i + 7.0;
+
+}

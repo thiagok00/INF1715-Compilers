@@ -18,7 +18,10 @@ static FILE* output = NULL;
 static int gera_codigo_expcte(Constante *c);
 static int gera_codigo_expunaria(Exp *e);
 static int gera_codigo_expvar(Exp *e);
-static int gera_codigo_expbin(Exp *e);
+static int gera_codigo_exparith(Exp *e);
+static int gera_codigo_expcmp(Exp *e);
+static int gera_codigo_expor(Exp *e);
+static int gera_codigo_expand(Exp *e);
 static int gera_codigo_expas(Exp *e);
 static int gera_codigo_expressao(Exp *e);
 /*
@@ -130,7 +133,11 @@ static int gera_codigo_expvar(Exp *e) {
 
     idtemp = gen_id();
     //%1 = load i32, i32* %lol
-    fprintf(output,"\t%%t%d = load %s, %s* %%%s\n",idtemp,strtipo,strtipo,v->u.vvar.id);
+    if (v->u.vvar.escopo == EscopoGlobal)
+      fprintf(output,"\t%%t%d = load %s, %s* @%s\n",idtemp,strtipo,strtipo,v->u.vvar.id);
+    else
+      fprintf(output,"\t%%t%d = load %s, %s* %%%s\n",idtemp,strtipo,strtipo,v->u.vvar.id);
+
     if (v->tipo->tipo_base == bChar){
       //%idtemp = sext i8 %lastid to i32
       int lastid = idtemp;
@@ -148,7 +155,7 @@ static int gera_codigo_expvar(Exp *e) {
   return -1;
 }
 
-static int gera_codigo_expbin(Exp *e) {
+static int gera_codigo_exparith(Exp *e) {
 
   int idesq, iddir, idtemp=-1;
   int flag = 0;
@@ -196,6 +203,22 @@ static int gera_codigo_expbin(Exp *e) {
     fprintf(output,"\t%%t%d = %s %s %%t%d, %%t%d\n",idtemp,op,strtipobase,idesq,iddir);
     return idtemp;
   }
+  return idtemp;
+}
+
+static int gera_codigo_expcmp(Exp *e) {
+
+  int idesq, iddir, idtemp=-1;
+  int flag = 0;
+  char *op, *strtipobase;
+  Base_TAG tipoexp;
+
+  tipoexp = e->u.expbin.expesq->tipo->tipo_base; //assumindo que os dois tipos sao iguais, garantido pela tipagem
+  strtipobase = tipo_base_string(tipoexp);
+
+  idesq = gera_codigo_expressao(e->u.expbin.expesq);
+  iddir = gera_codigo_expressao(e->u.expbin.expdir);
+
   if (e->u.expbin.opbin == equal){
     flag = 1;
     if (tipoexp == bFloat)
@@ -271,6 +294,14 @@ static int gera_codigo_expas(Exp *e) {
   return idexp;
 }
 
+static int gera_codigo_expor(Exp *e) {
+
+  return -1;
+}
+static int gera_codigo_expand(Exp *e) {
+  return -1;
+}
+
 static int gera_codigo_expressao(Exp *e) {
 
 
@@ -281,12 +312,18 @@ static int gera_codigo_expressao(Exp *e) {
         return gera_codigo_expunaria(e);
       case EXP_VAR:
         return gera_codigo_expvar(e);
-      case EXP_BIN:
-        return gera_codigo_expbin(e);
+      case EXP_ARITH:
+        return gera_codigo_exparith(e);
+      case EXP_CMP:
+        return gera_codigo_expcmp(e);
       case EXP_AS:
         return gera_codigo_expas(e);
-        default:
-          return -1;
+      case EXP_OR:
+        return gera_codigo_expor(e);
+      case EXP_AND:
+        return gera_codigo_expand(e);
+      default:
+        return -1;
         break;
     }
 
@@ -324,7 +361,10 @@ static void gera_codigo_bloco(Bloco *b) {
               idtemp = valexp;
             }
             //store i32 %2, i32* %lol
-            fprintf(output, "\tstore %s %%t%d, %s* %%%s\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.id);
+            if (varatr->u.vvar.escopo == EscopoGlobal)
+              fprintf(output, "\tstore %s %%t%d, %s* @%s\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.id);
+            else
+              fprintf(output, "\tstore %s %%t%d, %s* %%%s\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.id);
 
           }
           //TODO ARRAY
@@ -377,9 +417,9 @@ static void gera_codigo_varglobais(Definicao *defs) {
     if (defs->tag == DVar){
         char* tipostr = tipo_base_string(defs->u.v->tipo->tipo_base);
         if(defs->u.v->tipo->tipo_base == bFloat)
-          fprintf(output, "@%s = common global %s 0.000000e+00\n",defs->u.v->id,tipo_base_string(defs->u.v->tipo->tipo_base));
+          fprintf(output, "@%s = common global %s 0.000000e+00\n",defs->u.v->id,tipostr);
         else
-          fprintf(output, "@%s = common global %s 0\n",defs->u.v->id,tipo_base_string(defs->u.v->tipo->tipo_base));
+          fprintf(output, "@%s = common global %s 0\n",defs->u.v->id,tipostr);
     }
     defs = defs->prox;
   }

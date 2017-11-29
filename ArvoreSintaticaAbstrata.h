@@ -122,7 +122,10 @@ typedef struct Var
 * Expressao
 */
 typedef enum EXP_TAG {
-	EXP_BIN,
+	EXP_ARITH,
+	EXP_AND,
+	EXP_OR,
+	EXP_CMP,
 	EXP_UNARIA,
 	EXP_CTE,
 	EXP_VAR,

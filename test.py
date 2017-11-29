@@ -11,7 +11,7 @@ def unit_test():
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tests")
     num_tests = 0
     num_failed_tests = 0
-    
+
     files = [f for f in os.listdir(path) if f.endswith('.mmg')]
 
     for f in files:
@@ -43,6 +43,3 @@ if sys.argv[1] == "saveresults":
     save_results()
 elif sys.argv[1] == "unittest":
     unit_test()
-
-
-    

@@ -274,7 +274,7 @@ expressao:              exp_or {$$ = $1;}
 
 exp_or:                 exp_and {$$ = $1;}
                     |   exp_or TK_OR exp_and  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_BIN;
+                                                $$->tag = EXP_OR;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
                                                 $$->u.expbin.opbin = opor;
@@ -283,7 +283,7 @@ exp_or:                 exp_and {$$ = $1;}
 
 exp_and:                exp_cmp {$$ = $1;}
                     |   exp_and TK_AND exp_cmp  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_BIN;
+                                                $$->tag = EXP_AND;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
                                                 $$->u.expbin.opbin = opand;
@@ -292,37 +292,37 @@ exp_and:                exp_cmp {$$ = $1;}
 
 exp_cmp:                exp_add {$$ = $1;}
                     |   exp_cmp TK_EQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_BIN;
+                                                    $$->tag = EXP_CMP;
                                                     $$->u.expbin.expesq = $1;
                                                     $$->u.expbin.expdir = $3;
                                                     $$->u.expbin.opbin = equal;
                                                     }
                     |   exp_cmp TK_NOTEQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_BIN;
+                                                    $$->tag = EXP_CMP;
                                                     $$->u.expbin.expesq = $1;
                                                     $$->u.expbin.expdir = $3;
                                                     $$->u.expbin.opbin = notequal;
                                                     }
                     |   exp_cmp TK_LESSEQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_BIN;
+                                                    $$->tag = EXP_CMP;
                                                     $$->u.expbin.expesq = $1;
                                                     $$->u.expbin.expdir = $3;
                                                     $$->u.expbin.opbin = lessequal;
                                                     }
                     |   exp_cmp TK_GREATEREQUAL exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_BIN;
+                                                    $$->tag = EXP_CMP;
                                                     $$->u.expbin.expesq = $1;
                                                     $$->u.expbin.expdir = $3;
                                                     $$->u.expbin.opbin = greaterequal;
                                                     }
                     |   exp_cmp'<' exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_BIN;
+                                                    $$->tag = EXP_CMP;
                                                     $$->u.expbin.expesq = $1;
                                                     $$->u.expbin.expdir = $3;
                                                     $$->u.expbin.opbin = less;
                                                     }
                     |   exp_cmp '>' exp_add  { $$ = (Exp*)malloc(sizeof(Exp));
-                                                    $$->tag = EXP_BIN;
+                                                    $$->tag = EXP_CMP;
                                                     $$->u.expbin.expesq = $1;
                                                     $$->u.expbin.expdir = $3;
                                                     $$->u.expbin.opbin = greater;
@@ -331,13 +331,13 @@ exp_cmp:                exp_add {$$ = $1;}
 
 exp_add:                exp_mult {$$ = $1;}
                     |   exp_add '+' exp_mult { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_BIN;
+                                                $$->tag = EXP_ARITH;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
                                                 $$->u.expbin.opbin = opadd;
                                               }
                     |   exp_add '-' exp_mult { $$ = (Exp*)malloc(sizeof(Exp));
-                                                $$->tag = EXP_BIN;
+                                                $$->tag = EXP_ARITH;
                                                 $$->u.expbin.expesq = $1;
                                                 $$->u.expbin.expdir = $3;
                                                 $$->u.expbin.opbin = opsub;
@@ -346,13 +346,13 @@ exp_add:                exp_mult {$$ = $1;}
 
 exp_mult:               exp_unaria {$$ = $1;}
                     |   exp_mult '*' exp_unaria { $$ = (Exp*)malloc(sizeof(Exp));
-                                                  $$->tag = EXP_BIN;
+                                                  $$->tag = EXP_ARITH;
                                                   $$->u.expbin.expesq = $1;
                                                   $$->u.expbin.expdir = $3;
                                                   $$->u.expbin.opbin = opmult;
                                                 }
                     |   exp_mult '/' exp_unaria { $$ = (Exp*)malloc(sizeof(Exp));
-                                                  $$->tag = EXP_BIN;
+                                                  $$->tag = EXP_ARITH;
                                                   $$->u.expbin.expesq = $1;
                                                   $$->u.expbin.expdir = $3;
                                                   $$->u.expbin.opbin = opdiv;
@@ -428,7 +428,7 @@ int yywrap(void) {
 int main(void) {
   yyparse();
   tipa_arvore(nodePrograma);
-  print_tree(nodePrograma);
+  //print_tree(nodePrograma);
   geracodigo_arvore(nodePrograma);
   return 0;
 }
