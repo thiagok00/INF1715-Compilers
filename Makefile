@@ -4,15 +4,10 @@ main:
 	cc -Wall lex.yy.c Gramatica.tab.c ArvoreSintaticaAbstrata.c TabelaSimbolos.c GeraCodigo.c -o out
 
 compmonga: main
-	./out < tests/test_arith.mmg
+	./out < tests/test_temp.mmg
 	clang-3.8 -o monga monga.ll
 	./monga
-	./out < tests/test_cmp.mmg
-	clang-3.8 -o monga monga.ll
-	./monga
-	./out < tests/test_expas.mmg
-	clang-3.8 -o monga monga.ll
-	./monga
+
 
 geraex:
 	clang-3.8 -emit-llvm -S -O0 example.c

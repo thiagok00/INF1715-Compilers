@@ -8,6 +8,7 @@
 */
 char* tipo_base_string(Base_TAG tipo_base);
 static int gen_id();
+static int gen_label();
 static void gera_declaracoes_iniciais();
 static void gera_codigo_varglobais(Definicao *defs);
 
@@ -29,6 +30,11 @@ static int gera_codigo_expressao(Exp *e);
 */
 
 static int gen_id() {
+    static int i = 0;
+    return i++;
+}
+
+static int gen_label() {
     static int i = 0;
     return i++;
 }
@@ -134,9 +140,9 @@ static int gera_codigo_expvar(Exp *e) {
     idtemp = gen_id();
     //%1 = load i32, i32* %lol
     if (v->u.vvar.escopo == EscopoGlobal)
-      fprintf(output,"\t%%t%d = load %s, %s* @%s\n",idtemp,strtipo,strtipo,v->u.vvar.id);
+      fprintf(output,"\t%%t%d = load %s, %s* @t%d\n",idtemp,strtipo,strtipo,v->u.vvar.d.def->idTemp);
     else
-      fprintf(output,"\t%%t%d = load %s, %s* %%%s\n",idtemp,strtipo,strtipo,v->u.vvar.id);
+      fprintf(output,"\t%%t%d = load %s, %s* %%t%d\n",idtemp,strtipo,strtipo,v->u.vvar.d.def->idTemp);
 
     if (v->tipo->tipo_base == bChar){
       //%idtemp = sext i8 %lastid to i32
@@ -299,7 +305,21 @@ static int gera_codigo_expor(Exp *e) {
   return -1;
 }
 static int gera_codigo_expand(Exp *e) {
-  return -1;
+
+  int idexp,idtemp,labelTrue,labelFalse;
+
+  idexp = gera_codigo_expressao(e->u.expbin.expesq);
+  idtemp = gen_id();
+  //  %t(idtemp) = icmp ne i32 %t(idexp), 0
+  //  br i1 %3, label %4, label %8
+  printf("\t%%t%d = icmp ne i32 %%t%d, 0",idtemp,idexp);
+  labelTrue = gen_label();
+  labelFalse = gen_label();
+  printf("\tbr i1 %%t%d, label %%%d, label %%%d",idtemp,labelTrue,labelFalse);
+
+
+
+  return 0;
 }
 
 static int gera_codigo_expressao(Exp *e) {
@@ -335,8 +355,10 @@ static void gera_codigo_bloco(Bloco *b) {
   CMDL *cmds = b->cmds;
   while (defsvar != NULL){
     DefVar *v = defsvar->v;
+    int idTemp = gen_id();
+    v->idTemp = idTemp;
     //TODO ARRAY
-    fprintf(output,"\t%%%s = alloca %s\n",v->id,tipo_base_string(v->tipo->tipo_base));
+    fprintf(output,"\t%%t%d = alloca %s\n",v->idTemp,tipo_base_string(v->tipo->tipo_base));
 
     defsvar = defsvar->prox;
   }
@@ -362,9 +384,9 @@ static void gera_codigo_bloco(Bloco *b) {
             }
             //store i32 %2, i32* %lol
             if (varatr->u.vvar.escopo == EscopoGlobal)
-              fprintf(output, "\tstore %s %%t%d, %s* @%s\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.id);
+              fprintf(output, "\tstore %s %%t%d, %s* @t%d\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.d.def->idTemp);
             else
-              fprintf(output, "\tstore %s %%t%d, %s* %%%s\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.id);
+              fprintf(output, "\tstore %s %%t%d, %s* %%t%d\n",varstrtipo,idtemp,varstrtipo,varatr->u.vvar.d.def->idTemp);
 
           }
           //TODO ARRAY
@@ -415,11 +437,15 @@ static void gera_codigo_varglobais(Definicao *defs) {
   //TODO arrays
   while (defs != NULL){
     if (defs->tag == DVar){
+        int idTemp = gen_id();
         char* tipostr = tipo_base_string(defs->u.v->tipo->tipo_base);
-        if(defs->u.v->tipo->tipo_base == bFloat)
-          fprintf(output, "@%s = common global %s 0.000000e+00\n",defs->u.v->id,tipostr);
-        else
-          fprintf(output, "@%s = common global %s 0\n",defs->u.v->id,tipostr);
+        defs->u.v->idTemp = idTemp;
+        if(defs->u.v->tipo->tipo_base == bFloat) {
+          fprintf(output, "@t%d = common global %s 0.000000e+00\n",idTemp,tipostr);
+        }
+        else {
+          fprintf(output, "@t%d = common global %s 0\n",idTemp,tipostr);
+        }
     }
     defs = defs->prox;
   }

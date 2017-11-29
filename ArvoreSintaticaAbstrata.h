@@ -39,6 +39,7 @@ typedef struct DefVar
 {
 	char* id;
   Tipo* tipo;
+	int idTemp;
 	EscopoTag escopo;
 } DefVar;
 
