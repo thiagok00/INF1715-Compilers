@@ -90,6 +90,59 @@ char *tipo_string(Tipo *tipo) {
   return str;
 }
 
+static char* traduz_escapes_string(const char * str, int *len) {
+
+  //char *escapen = "\\0A";
+  //char *escapet = "\\09";
+  //char *escapecb = "\\5C";
+  char *nvstr;
+  int i,j, length;
+
+  length = strlen(str);
+  nvstr = (char*) malloc((length*3+1)*sizeof(char));
+  if (nvstr == NULL) {printf("Falta de memoria\n");exit(1);}
+  (*len) = 0;
+  for (j = 0, i = 0; i < length; i++) {
+
+    switch(str[i]) {
+          case '\n':
+            nvstr[j] = '\\';
+            j++;
+            nvstr[j] = '0';
+            j++;
+            nvstr[j] = 'A';
+            j++;
+            (*len)++;
+            break;
+          case '\t':
+            nvstr[j] = '\\';
+            j++;
+            nvstr[j] = '0';
+            j++;
+            nvstr[j] = '9';
+            j++;
+            (*len)++;
+            break;
+          case '\\':
+            nvstr[j] = '\\';
+            j++;
+            nvstr[j] = '5';
+            j++;
+            nvstr[j] = 'C';
+            j++;
+            (*len)++;
+            break;
+          default:
+            nvstr[j] = str[i];
+            j++;
+            (*len)++;
+        }
+    }
+  nvstr[j] = '\0';
+  (*len)++;
+  return nvstr;
+}
+
 static int gera_codigo_expcte(Constante *c) {
 
   if(c->tag == CDEC){
@@ -103,17 +156,18 @@ static int gera_codigo_expcte(Constante *c) {
     return idtemp;
   }
   else if (c->tag == CSTRING) {
-    int idtemp = gen_stringid();
-    const char *originalString = c->val.s;
+    int idtemp, originalStringLen;
+    char *originalString;
     char snum[200];
     char *finalString;
     char *strPrint;
     StringList *nv;
-    long unsigned int originalStringLen;
 
-    originalStringLen = strlen(originalString)+1;
+    idtemp = gen_stringid();
+    originalString = traduz_escapes_string(c->val.s,&originalStringLen);
+    //originalStringLen = strlen(originalString)+1;
 
-    sprintf(snum,"@.s%d = private unnamed_addr constant [%lu x i8] c\"",idtemp,originalStringLen);
+    sprintf(snum,"@.s%d = private unnamed_addr constant [%d x i8] c\"",idtemp,originalStringLen);
 
     // +4 pelo \00 e "
     finalString = (char*) malloc((strlen(snum)+strlen(originalString)+4)*sizeof(char));
@@ -129,7 +183,7 @@ static int gera_codigo_expcte(Constante *c) {
     strPrint = (char*) malloc(200*sizeof(char));
     if (strPrint == NULL) {printf("Falta de memoria\n");exit(1);}
 
-    sprintf(strPrint,"call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([%lu x i8], [%lu x i8]* @.s%d, i32 0, i32 0))\n",originalStringLen,originalStringLen,idtemp);
+    sprintf(strPrint,"call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([%d x i8], [%d x i8]* @.s%d, i32 0, i32 0))\n",originalStringLen,originalStringLen,idtemp);
     if (lastStringToPrint != NULL) free(lastStringToPrint);
     lastStringToPrint = strPrint;
 
@@ -604,7 +658,7 @@ static void gera_codigo_bloco(Bloco *b) {
             int lastid = idtemp;
             idtemp = gen_id();
             //%2 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i32 %1)
-            fprintf(output,"\t%%t%d = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.intprint, i32 0, i32 0), i32 %%t%d)",idtemp,lastid);
+            fprintf(output,"\t%%t%d = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4  x i8], [4 x i8]* @.intprint, i32 0, i32 0), i32 %%t%d)",idtemp,lastid);
         }
           else if (c->u.e->tipo->tag == base && c->u.e->tipo->tipo_base == bFloat) {
             int lastid = idtemp;
@@ -732,20 +786,12 @@ static void gera_codigo_strings() {
 }
 
 static void gera_declaracoes_iniciais() {
-	//fprintf(output, "declare noalias i8* @malloc(i64)\n" );
   fprintf(output,"target triple = \"x86_64-pc-linux-gnu\"");
 	fprintf(output, "declare i8* @malloc(i32)\n" );
 	fprintf(output, "declare i32 @printf(i8* nocapture readonly, ...)\n" );
 	fprintf(output, "declare i32 @puts(i8* nocapture readonly)\n" );
-
   fprintf(output, "\n");
-
-  fprintf(output, "@.intprint = private unnamed_addr constant [3 x i8] c\"%%d\\00\"");
-  //@.str = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
-  //@.str = private unnamed_addr constant [3 x i8] c"%d\00", align 1
-	fprintf(output, "@.floatprint = private unnamed_addr constant [4 x i8] c\"%%f\\0A\\00\"" );
-	fprintf(output, "@.charprint = private unnamed_addr constant [3 x i8] c\"%%c\\00\"\n" );
-	//fprintf(output, "@.strprint = private unnamed_addr constant [3 x i8] c\"%%s\\00\"\n" );
-
+  fprintf(output, "@.intprint = private unnamed_addr constant [4 x i8] c\"%%d\\0A\\00\"\n");
+	fprintf(output, "@.floatprint = private unnamed_addr constant [4 x i8] c\"%%f\\0A\\00\"\n" );
   fprintf(output,"\n");
 }

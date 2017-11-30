@@ -5,7 +5,7 @@ main(x : int): int {
     @x;
     }
     else {
-    @"nao era um dois";
+    @"vavava\\";
     }
     x = x - 1;
   }
