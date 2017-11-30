@@ -66,6 +66,7 @@ typedef struct ParametroL
 {
 	Tipo *tipo;
 	char *id;
+	int idtemp;
 	struct ParametroL *prox;
 } ParametroL;
 

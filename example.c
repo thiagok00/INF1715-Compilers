@@ -1,18 +1,11 @@
-#include <stdio.h>
-int x;
+#include <stdlib.h>
 
 int main (){
 
-  x = 10;
-  int y;
+  int x=10;
 
-//  y = x && x/2;
-
-  if (x && x/5){
-    printf("5\n");
-  }
-  else {
-    printf("else\n");
+  while (x){
+    x = 10;
   }
   return 0;
 }

@@ -428,7 +428,7 @@ int yywrap(void) {
 int main(void) {
   yyparse();
   tipa_arvore(nodePrograma);
-  //print_tree(nodePrograma);
+  print_tree(nodePrograma);
   geracodigo_arvore(nodePrograma);
   return 0;
 }

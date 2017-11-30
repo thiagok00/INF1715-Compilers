@@ -416,7 +416,8 @@ static void tipa_expconstante(Simbolo *s, Exp *e, int nivelEscopo) {
         t->tipo_base = bFloat;
       break;
       case CSTRING:
-        t->tipo_base = bVoid; /* TODO encarar constantes string como tipo void mesmo?*/
+        t->tag = array;
+        t->tipo_base = bChar;
       break;
     }
 }
@@ -430,12 +431,12 @@ static void tipa_expas(Simbolo *s, Exp *e, int nivelEscopo) {
 static void tipa_expnew(Simbolo *s, Exp *e, int nivelEscopo) {
   Tipo *t;
   tipa_expressao(s,e->u.expnewas.exp,nivelEscopo);
-  t = (Tipo*) malloc(sizeof(Tipo));
+   t = (Tipo*) malloc(sizeof(Tipo));
   if (t == NULL) {printf("falta de memoria\n");exit(1);}
-  t->tag = base;
-  t->tipo_base = bVoid;
-  t->de = NULL;
-  e->tipo = t;
+   t->tag = array;
+   t->tipo_base = e->u.expnewas.tipo->tipo_base;
+   t->de = e->u.expnewas.tipo;
+   e->tipo = t;
 }
 
 static void tipa_expbin(Simbolo*s, Exp *e, int nivelEscopo) {
@@ -637,11 +638,12 @@ static void tipa_comando(Simbolo*s, CMD *cmd, int nivelEscopo) {
       //TODO checa tipo
     case CMD_PRINT:
       tipa_expressao(s,cmd->u.e,nivelEscopo);
-      //TODO PRINT STRINGS
-      if(cmd->u.e->tipo->tipo_base != bInt && cmd->u.e->tipo->tipo_base != bFloat){
-        printf("[Erro] tipo inesperado em print :%s\n",getStringTipo(cmd->u.e->tipo));
-        exit(1);
-      }
+      if(cmd->u.e->tipo->tipo_base != bChar && cmd->u.e->tipo->tag != array) {
+        if(cmd->u.e->tipo->tipo_base != bInt && cmd->u.e->tipo->tipo_base != bFloat){
+          printf("[Erro] tipo inesperado em print :%s\n",getStringTipo(cmd->u.e->tipo));
+          exit(1);
+        }
+    }
     break;
     case CMD_CHAMADA:
       tipa_expressao(s,cmd->u.e,nivelEscopo);
