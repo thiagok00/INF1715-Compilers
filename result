@@ -1,8 +1,0 @@
-flex Tokens.lex
-bison -d -v Gramatica.y
-cc -Wall lex.yy.c Gramatica.tab.c ArvoreSintaticaAbstrata.c TabelaSimbolos.c GeraCodigo.c -o out
-./out < tests/test_expas.mmg
-clang-3.8 -o monga monga.ll
-./monga
-20.000000
-20.000000
