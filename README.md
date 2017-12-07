@@ -1,5 +1,5 @@
 # INF1715 - Compilers
-A compiler for the monga language, written for the class INF1715-Compilers at PUC-Rio.
+A compiler for the monga language, written for the class INF1715-Compilers at PUC-Rio. The project is experimental and has not been fully completed.
 
 ## Monga
 http://www.inf.puc-rio.br/~roberto/comp/lang.html
